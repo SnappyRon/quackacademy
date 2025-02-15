@@ -1,0 +1,33 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class AppTheme {
+  static Color primaryColor = Color(0xFF1E3A5F); // Dark Blue Background
+  static Color textColor = Colors.white;
+  static Color buttonColor = Colors.orange;
+  static Color textFieldFill = Colors.white; // Added missing property
+  static Color textFieldBorder = Colors.grey.shade400; // Added missing property
+
+  static ThemeData themeData = ThemeData(
+    primaryColor: primaryColor,
+    scaffoldBackgroundColor: primaryColor,
+    textTheme: TextTheme(
+      titleLarge: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.bold, color: textColor),
+      bodyLarge: GoogleFonts.poppins(color: textColor, fontSize: 16, fontWeight: null),
+      bodyMedium: GoogleFonts.poppins(color: Colors.black87, fontSize: 14, fontWeight: null),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: buttonColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+      ),
+    ),
+  );
+
+  static var progressBarColor;
+}
+
+class GoogleFonts {
+  static poppins({required int fontSize, required FontWeight fontWeight, required Color color}) {}
+}
