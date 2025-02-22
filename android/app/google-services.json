@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "725109404811",
+    "project_id": "quackacademy-8709e",
+    "storage_bucket": "quackacademy-8709e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:725109404811:android:2b22f166108eef021b508e",
+        "android_client_info": {
+          "package_name": "com.example.quackacademy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmmMnxLzHg-jM_lmckdqh_fHJuY8GoIC4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

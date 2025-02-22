@@ -13,8 +13,8 @@ class AppTheme {
     scaffoldBackgroundColor: primaryColor,
     textTheme: TextTheme(
       titleLarge: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.bold, color: textColor),
-      bodyLarge: GoogleFonts.poppins(color: textColor, fontSize: 16, fontWeight: null),
-      bodyMedium: GoogleFonts.poppins(color: Colors.black87, fontSize: 14, fontWeight: null),
+      bodyLarge: GoogleFonts.poppins(color: textColor, fontSize: 16, fontWeight: FontWeight.normal), // Fixed
+      bodyMedium: GoogleFonts.poppins(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.normal), // Fixed
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -25,9 +25,5 @@ class AppTheme {
     ),
   );
 
-  static var progressBarColor;
-}
-
-class GoogleFonts {
-  static poppins({required int fontSize, required FontWeight fontWeight, required Color color}) {}
+  static Color progressBarColor = Colors.blue; // Added default color
 }
