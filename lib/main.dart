@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:quackacademy/game/duck_race_game.dart';
 import 'package:quackacademy/screens/learn_page.dart';
 import 'firebase_options.dart';
 import 'screens/login_page.dart';
@@ -45,6 +46,7 @@ class QuackAcademyApp extends StatelessWidget {
         '/information': (context) => InformationPage(), // ✅ InformationPage route
         '/password': (context) => PasswordPage(),
         '/learn': (context) => LearnPage(), // ✅ PasswordPage route
+        
       },
     );
   }
