@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quackacademy/screens/courses/java_course/Java_Q1/java_q1_final_quiz.dart';
 import 'java_q1_pretest_page.dart';
 
 class JavaQ1Lesson5Page extends StatelessWidget {
@@ -23,7 +24,7 @@ class JavaQ1Lesson5Page extends StatelessWidget {
               ),
             ),
 
-            _nextButton(context, JavaQ1PretestPage()),
+            _nextButton(context, JavaQ1FinalQuizPage()),
           ],
         ),
       ),
@@ -95,7 +96,7 @@ class JavaQ1Lesson5Page extends StatelessWidget {
           ),
           alignment: Alignment.center,
           child: Text(
-            "Next Lesson",
+            "Final Quiz",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),

@@ -20,13 +20,13 @@ class CourseSelectionPage extends StatelessWidget {
           ),
           SizedBox(height: 16),
 
-          // 1) Java
+          // Java
           _courseCard(
             context,
             iconPath: "assets/java_logo.png",
             title: "Java",
             description: "Java fundamentals",
-            locked: false, // or remove lock if it's open
+            locked: false,
             onTap: () {
               // Navigate to Java Course Selection Page
               Navigator.push(
@@ -36,59 +36,20 @@ class CourseSelectionPage extends StatelessWidget {
             },
           ),
 
-          // 2) Python
+          // Python
           _courseCard(
             context,
             iconPath: "assets/python_logo.png",
             title: "Python",
             description: "Learn Python basics",
-            locked: false, // if open
+            locked: false,
             onTap: () {
               // TODO: Navigate to Python Course if available
             },
           ),
 
-          // 3) C++ (locked)
-          _courseCard(
-            context,
-            iconPath: "assets/cpp_logo.png",
-            title: "C++",
-            description: "Deep dive into C++",
-            locked: true, // locked
-            onTap: () {
-              // No navigation if locked
-            },
-          ),
+          // The rest of the courses...
 
-          // 4) HTML Basics (locked)
-          _courseCard(
-            context,
-            iconPath: "assets/html_logo.png",
-            title: "HTML Basics",
-            description: "Learn HTML from scratch",
-            locked: true,
-            onTap: () {},
-          ),
-
-          // 5) CSS Essentials (locked)
-          _courseCard(
-            context,
-            iconPath: "assets/css_logo.png",
-            title: "CSS Essentials",
-            description: "Master styling with CSS",
-            locked: true,
-            onTap: () {},
-          ),
-
-          // 6) JavaScript (locked)
-          _courseCard(
-            context,
-            iconPath: "assets/js_logo.png",
-            title: "JavaScript",
-            description: "Interactive web elements",
-            locked: true,
-            onTap: () {},
-          ),
         ],
       ),
     );
@@ -119,6 +80,10 @@ class CourseSelectionPage extends StatelessWidget {
               iconPath,
               width: 40,
               height: 40,
+              errorBuilder: (context, error, stackTrace) {
+                // Graceful fallback if asset is missing
+                return Icon(Icons.error, color: Colors.red, size: 40);
+              },
             ),
             SizedBox(width: 16),
 
@@ -137,10 +102,7 @@ class CourseSelectionPage extends StatelessWidget {
                   ),
                   Text(
                     description,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.black54),
                   ),
                 ],
               ),
