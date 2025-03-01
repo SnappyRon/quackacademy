@@ -5,15 +5,21 @@ import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 
 class DuckRaceGame extends FlameGame {
-  static const int duckFrames = 15; // The number of frames in the duck sprite sheet.
-  late SpriteAnimationComponent duck;
-  late ParallaxComponent backgroundParallax;
+  static const int duckFrames = 15;
+
+  // Instead of "late", we assign default empty components to avoid LateInitializationError
+  SpriteAnimationComponent userDuck = SpriteAnimationComponent();
+  SpriteAnimationComponent opponentDuck1 = SpriteAnimationComponent();
+  SpriteAnimationComponent opponentDuck2 = SpriteAnimationComponent();
+
+  // Parallax for background
+  ParallaxComponent? backgroundParallax;
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // Load the parallax scrolling backgrounds
+    // 1) Parallax background
     backgroundParallax = await loadParallaxComponent(
       [
         ParallaxImageData('game_assets/BG1(440x246).png'),
@@ -23,19 +29,17 @@ class DuckRaceGame extends FlameGame {
         ParallaxImageData('game_assets/BG5(440x246).png'),
         ParallaxImageData('game_assets/BG6(440x246).png'),
       ],
-      baseVelocity: Vector2(10, 0),  // Moves the background to the left
+      baseVelocity: Vector2(10, 0), // Moves background to the left
       velocityMultiplierDelta: Vector2(1.2, 0),
       repeat: ImageRepeat.repeatX,
     );
+    add(backgroundParallax!);
 
-    add(backgroundParallax);
-
-    // Load the duck sprite sheet
+    // 2) Load the duck sprite sheet
     final duckSheet = await images.load('game_assets/duck(15FPS).png');
     final frameWidth = duckSheet.width / duckFrames;
     final frameHeight = duckSheet.height.toDouble();
 
-    // Create the sprite animation
     final spriteSheet = SpriteSheet(
       image: duckSheet,
       srcSize: Vector2(frameWidth, frameHeight),
@@ -45,21 +49,51 @@ class DuckRaceGame extends FlameGame {
       row: 0,
       from: 0,
       to: duckFrames - 1,
-      stepTime: 0.066, // 15 FPS
+      stepTime: 0.066, // ~15 FPS
     );
 
-    // Create the duck component
-    duck = SpriteAnimationComponent(
-      animation: duckAnimation,
-      size: Vector2(50, 50),
-      position: Vector2(50, size.y * 0.65),  // Start position
-    );
+    // 3) Create the 3 ducks at different vertical positions near the bottom
+    userDuck
+      ..animation = duckAnimation
+      ..size = Vector2(50, 50)
+      ..position = Vector2(55, size.y * 0.7);
 
-    add(duck);
+    opponentDuck1
+      ..animation = duckAnimation
+      ..size = Vector2(50, 50)
+      ..position = Vector2(55, size.y * 0.6);
+
+    opponentDuck2
+      ..animation = duckAnimation
+      ..size = Vector2(50, 50)
+      ..position = Vector2(55, size.y * 0.5);
+
+    add(userDuck);
+    add(opponentDuck1);
+    add(opponentDuck2);
   }
 
-  /// Method to move the duck forward when the player gets a correct answer
-  void moveDuckForward() {
-    duck.position.x += 20; // Move the duck forward
+  /// Moves the user's duck forward
+  void moveUserDuckForward() {
+    userDuck.position.x += 20;
+  }
+
+  /// Optionally move opponents if you have real-time data
+  void moveOpponentDuck1Forward() {
+    opponentDuck1.position.x += 20;
+  }
+
+  void moveOpponentDuck2Forward() {
+    opponentDuck2.position.x += 20;
+  }
+
+  // Keep ducks in the river if the screen size changes
+  @override
+  void onGameResize(Vector2 canvasSize) {
+    super.onGameResize(canvasSize);
+    // Re-position them to keep the same "lanes"
+    userDuck.position = Vector2(55, canvasSize.y * 0.7);
+    opponentDuck1.position = Vector2(55, canvasSize.y * 0.6);
+    opponentDuck2.position = Vector2(55, canvasSize.y * 0.5);
   }
 }
