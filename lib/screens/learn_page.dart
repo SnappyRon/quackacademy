@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'courses/html_course_page.dart';
+import 'courses/java_course/java_course_page.dart';
 import 'courses/css_course_page.dart';
 
 class LearnPage extends StatefulWidget {
@@ -8,14 +8,14 @@ class LearnPage extends StatefulWidget {
 }
 
 class _LearnPageState extends State<LearnPage> {
-  // Manage course lock status
+  // ✅ Corrected Standard Learning Order
   Map<String, bool> courseLockStatus = {
-    "HTML Basics": false, // ✅ Unlocked by default
-    "CSS Essentials": true,
-    "JavaScript": true,
-    "Python": true,
-    "C++": true,
-    "Java": true,
+    "Java": false,       // ✅ Unlocked by default
+    "Python": true,      // 🔒 Unlocks after Java
+    "C++": true,         // 🔒 Unlocks after Python
+    "HTML Basics": true, // 🔒 Unlocks after C++
+    "CSS Essentials": true, // 🔒 Unlocks after HTML
+    "JavaScript": true,  // 🔒 Unlocks after CSS
   };
 
   @override
@@ -102,25 +102,41 @@ class _LearnPageState extends State<LearnPage> {
   }
 
   /// ✅ Navigate to Course Page
-  void _navigateToCoursePage(BuildContext context, String courseName) {
-    if (courseName == "HTML Basics") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HTMLCoursePage(unlockNextCourse: _unlockNextCourse),
-        ),
-      );
-    } else if (courseName == "CSS Essentials") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CSSCoursePage(),
-        ),
-      );
-    }
+void _navigateToCoursePage(BuildContext context, String courseName) {
+  if (courseName == "Java") {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => JavaCourseSelectionPage(),
+      ),
+    ).then((_) {
+      _unlockNextCourse("Python"); // ✅ Unlock Python after Java is completed
+    });
+  } else if (courseName == "Python") {
+    // Implement Python Course Page
+    _unlockNextCourse("C++");
+  } else if (courseName == "C++") {
+    // Implement C++ Course Page
+    _unlockNextCourse("HTML Basics");
+  } else if (courseName == "HTML Basics") {
+    // Implement HTML Course Page
+    _unlockNextCourse("CSS Essentials");
+  } else if (courseName == "CSS Essentials") {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CSSCoursePage(),
+      ),
+    ).then((_) {
+      _unlockNextCourse("JavaScript");
+    });
+  } else if (courseName == "JavaScript") {
+    // Implement JavaScript Course Page
   }
+}
 
-  /// ✅ Unlock Next Course
+
+  /// ✅ Unlock Next Course in Sequence
   void _unlockNextCourse(String courseName) {
     setState(() {
       if (courseLockStatus.containsKey(courseName)) {
@@ -129,7 +145,7 @@ class _LearnPageState extends State<LearnPage> {
     });
   }
 
-  /// ✅ Show Locked Dialog
+  /// ✅ Show Locked Course Message
   void _showLockedDialog(BuildContext context, String courseName) {
     showDialog(
       context: context,
@@ -149,18 +165,18 @@ class _LearnPageState extends State<LearnPage> {
   /// ✅ Course Subtitles
   String _getCourseSubtitle(String courseName) {
     switch (courseName) {
+      case "Java":
+        return "Java fundamentals";
+      case "Python":
+        return "Learn Python basics";
+      case "C++":
+        return "Deep dive into C++";
       case "HTML Basics":
         return "Learn HTML from scratch";
       case "CSS Essentials":
         return "Master styling with CSS";
       case "JavaScript":
         return "Interactive web elements";
-      case "Python":
-        return "Intro to Python programming";
-      case "C++":
-        return "Deep dive into C++";
-      case "Java":
-        return "Java fundamentals";
       default:
         return "";
     }
@@ -169,18 +185,18 @@ class _LearnPageState extends State<LearnPage> {
   /// ✅ Course Images
   String _getCourseImage(String courseName) {
     switch (courseName) {
+      case "Java":
+        return 'assets/images/java.png';
+      case "Python":
+        return 'assets/images/python.png';
+      case "C++":
+        return 'assets/images/Cplus.png';
       case "HTML Basics":
         return 'assets/images/html.png';
       case "CSS Essentials":
         return 'assets/images/css.png';
       case "JavaScript":
         return 'assets/images/js.png';
-      case "Python":
-        return 'assets/images/python.png';
-      case "C++":
-        return 'assets/images/Cplus.png';
-      case "Java":
-        return 'assets/images/java.png';
       default:
         return 'assets/images/placeholder.png';
     }
