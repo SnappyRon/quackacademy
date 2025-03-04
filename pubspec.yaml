@@ -88,6 +88,8 @@ flutter:
     - assets/images/game_assets/BG5(440x246).png
     - assets/images/game_assets/BG6(440x246).png
     - assets/images/game_assets/duck(15FPS).png
+    - assets/images/game_assets/Finish Line Layer.png
+    - assets/images/game_assets/Start Line Layer.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

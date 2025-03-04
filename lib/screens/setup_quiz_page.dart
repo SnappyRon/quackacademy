@@ -16,55 +16,51 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
   final TextEditingController _answer2Controller = TextEditingController();
   final TextEditingController _answer3Controller = TextEditingController();
   final TextEditingController _answer4Controller = TextEditingController();
-  final TextEditingController _correctAnswerController = TextEditingController();
 
   /// Slides data
   final List<Map<String, dynamic>> _slides = [];
   int _currentSlideIndex = 0;
 
-  /// For the radio button selection (which answer index is correct)
+  /// Which answer index is correct (radio button)
   int? _selectedCorrectAnswerIndex;
 
   @override
   void initState() {
     super.initState();
-    _addNewSlide(); // Start with one slide
+    _addNewSlide(); // Start with one blank slide
   }
 
-  /// ✅ 1) Save current slide, then create a new blank slide
+  /// Save current slide, then create a new blank slide
   void _addNewSlide() {
-    // Save the data typed on the current slide before switching
     _saveCurrentSlide();
-
     setState(() {
       _slides.add({
         'question': '',
         'answers': ['', '', '', ''],
-        'correctAnswerIndex': 0, // default radio selection
-        'correctAnswerString': '',
+        'correctAnswerIndex': 0,
       });
       _currentSlideIndex = _slides.length - 1;
       _loadSlideData();
     });
   }
 
-  /// ✅ Load the data from _slides into the text fields
+  /// Load slide data into the text fields
   void _loadSlideData() {
     if (_slides.isNotEmpty && _currentSlideIndex < _slides.length) {
       final slide = _slides[_currentSlideIndex];
       _questionController.text = slide['question'];
-      _answer1Controller.text = slide['answers'][0];
-      _answer2Controller.text = slide['answers'][1];
-      _answer3Controller.text = slide['answers'][2];
-      _answer4Controller.text = slide['answers'][3];
+      final answers = slide['answers'] as List<String>;
+      _answer1Controller.text = answers[0];
+      _answer2Controller.text = answers[1];
+      _answer3Controller.text = answers[2];
+      _answer4Controller.text = answers[3];
       _selectedCorrectAnswerIndex = slide['correctAnswerIndex'];
-      _correctAnswerController.text = slide['correctAnswerString'] ?? '';
     }
   }
 
-  /// ✅ Save the current slide's data into _slides
+  /// Save current slide data into _slides
   void _saveCurrentSlide() {
-    if (_slides.isEmpty) return; // If somehow no slides exist, do nothing
+    if (_slides.isEmpty) return;
 
     _slides[_currentSlideIndex] = {
       'question': _questionController.text,
@@ -75,7 +71,6 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
         _answer4Controller.text,
       ],
       'correctAnswerIndex': _selectedCorrectAnswerIndex ?? 0,
-      'correctAnswerString': _correctAnswerController.text,
     };
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -83,9 +78,9 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
     );
   }
 
-  /// ✅ Submit quiz to Firestore
+  /// Submit quiz to Firestore
   void _submitQuiz() async {
-    // Make sure we save the final slide's data
+    // Save final slide data
     _saveCurrentSlide();
 
     if (_quizTitleController.text.isEmpty) {
@@ -99,31 +94,29 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
     }
 
     try {
-      // Create a new quiz doc with title
+      // Create new quiz doc
       final quizRef = await _firestore.collection('quizzes').add({
         'title': _quizTitleController.text,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      // For each slide, store question, answers, correct answers
+      // For each slide, store question, answers, correct answer
       for (var slide in _slides) {
         final correctIndex = slide['correctAnswerIndex'] as int;
         final answersList = slide['answers'] as List<String>;
-        final typedCorrect = slide['correctAnswerString'] as String;
-        final radioCorrectAnswer = answersList[correctIndex];
+
+        final finalCorrectAnswer = answersList[correctIndex];
 
         await quizRef.collection('slides').add({
           'question': slide['question'],
           'answers': answersList,
-          'correctAnswer': radioCorrectAnswer,
-          'correctAnswerString': typedCorrect,
+          'correctAnswer': finalCorrectAnswer,
         });
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Quiz Saved Successfully!"), backgroundColor: Colors.green),
       );
-
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -132,6 +125,9 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
     }
   }
 
+  
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,7 +135,7 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
       body: SafeArea(
         child: Column(
           children: [
-            /// Top Row: CANCEL + Title
+            // Top Row: CANCEL + Title
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
@@ -167,39 +163,28 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
               ),
             ),
 
-            /// Orange title bar for Quiz Title
+            // Orange title bar for Quiz Title
             _buildQuizTitleInput(),
-
             SizedBox(height: 10),
 
-            /// Big Blue Rectangle for Question
+            // Big Blue Rectangle for Question
             _buildQuestionInput(),
-
             SizedBox(height: 10),
 
-            /// 4 Answer Boxes (with radio buttons)
+            // 4 Answer Boxes (with neon green radio buttons)
             _buildAnswerBoxes(),
-
             SizedBox(height: 10),
 
-            /// "Correct Answer" text field (purple)
-            _buildCorrectAnswerInput(),
-
-            SizedBox(height: 10),
-
-            /// Optional Preview
+            // Optional Preview
             _buildPreviewArea(),
-
             SizedBox(height: 10),
 
-            /// Slides Row + Add Slide + Save
+            // Slides Row + Add Slide + Save
             _buildSlideControls(),
-
             SizedBox(height: 10),
 
-            /// Submit Quiz Button
+            // Submit Quiz Button
             _buildSubmitButton(),
-
             SizedBox(height: 10),
           ],
         ),
@@ -227,7 +212,6 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(vertical: 14),
           ),
-          onChanged: (val) => setState(() {}),
         ),
       ),
     );
@@ -253,13 +237,12 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(vertical: 14),
           ),
-          onChanged: (val) => setState(() {}),
         ),
       ),
     );
   }
 
-  /// Build the Answer Boxes with Radio Buttons
+  /// Build the Answer Boxes with neon green radio buttons
   Widget _buildAnswerBoxes() {
     List<TextEditingController> controllers = [
       _answer1Controller,
@@ -276,6 +259,7 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
           return Row(
             children: [
               Radio<int>(
+                activeColor: Colors.greenAccent, // neon green
                 value: index,
                 groupValue: _selectedCorrectAnswerIndex,
                 onChanged: (int? value) {
@@ -287,7 +271,11 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
               Expanded(
                 child: Container(
                   height: 60,
-                  decoration: BoxDecoration(color: colors[index], borderRadius: BorderRadius.circular(8)),
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    color: colors[index],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   child: TextField(
                     controller: controllers[index],
                     textAlign: TextAlign.center,
@@ -298,39 +286,12 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(vertical: 16),
                     ),
-                    onChanged: (val) => setState(() {}),
                   ),
                 ),
               ),
             ],
           );
         }),
-      ),
-    );
-  }
-
-  /// A text field for "Correct Answer" (any typed text)
-  Widget _buildCorrectAnswerInput() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: Colors.purple,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: TextField(
-          controller: _correctAnswerController,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          decoration: InputDecoration(
-            hintText: "Type the correct answer here",
-            hintStyle: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(vertical: 14),
-          ),
-          onChanged: (val) => setState(() {}),
-        ),
       ),
     );
   }
@@ -343,6 +304,7 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
       _answer3Controller.text,
       _answer4Controller.text
     ];
+
     String chosenRadioAnswer = '';
     if (_selectedCorrectAnswerIndex != null &&
         _selectedCorrectAnswerIndex! >= 0 &&
@@ -374,8 +336,6 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
             Text('D: ${answers[3]}', style: TextStyle(color: Colors.white)),
             SizedBox(height: 4),
             Text('Chosen (Radio): $chosenRadioAnswer', style: TextStyle(color: Colors.white)),
-            SizedBox(height: 4),
-            Text('Typed Correct: ${_correctAnswerController.text}', style: TextStyle(color: Colors.white)),
           ],
         ),
       ),
@@ -394,7 +354,6 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
         ),
         child: Row(
           children: [
-            /// Slides
             Expanded(
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
@@ -402,7 +361,6 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      // Save current before switching
                       _saveCurrentSlide();
                       setState(() {
                         _currentSlideIndex = index;
@@ -438,8 +396,6 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
                 },
               ),
             ),
-
-            /// Add Slide
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: ElevatedButton(
@@ -452,8 +408,6 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
                 child: Text("Add Slide", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ),
-
-            /// Save Slide
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: ElevatedButton(

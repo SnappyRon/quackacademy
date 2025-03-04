@@ -82,6 +82,8 @@ class _GameRoomPageState extends State<GameRoomPage> {
               builder: (context) => QuizPage(
                 gameCode: widget.gameCode,
                 quizId: quizId,
+                currentPlayerId: userId,
+                isTeacher: widget.isTeacher,
               ),
             ),
           );
