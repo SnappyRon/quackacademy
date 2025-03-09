@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'java_lesson_1.dart';
+import 'package:quackacademy/screens/courses/java_course/Java_Q3/java_all_lessons_page.dart';
+
 
 class JavaPreTestPage extends StatefulWidget {
   @override
@@ -31,7 +32,7 @@ class _JavaPreTestPageState extends State<JavaPreTestPage> {
 
   void _submitAnswers() {
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => JavaLesson1Page()));
+        context, MaterialPageRoute(builder: (context) => JavaAllLessonsPage1()));
   }
 
   @override

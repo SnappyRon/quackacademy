@@ -11,6 +11,7 @@ import 'screens/join_page.dart'; // ✅ Import JoinPage
 import 'screens/profile_page.dart';
 import 'screens/information_page.dart'; // ✅ Import InformationPage
 import 'screens/password_page.dart'; // ✅ Import PasswordPage
+import 'main_navigator.dart'; //
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +37,7 @@ class QuackAcademyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
-      home: AuthWrapper(),
+      home: MainNavigator(),
       routes: {
         '/login': (context) => LoginPage(),
         '/signup': (context) => SignUpPage(),
@@ -46,7 +47,7 @@ class QuackAcademyApp extends StatelessWidget {
         '/information': (context) => InformationPage(), // ✅ InformationPage route
         '/password': (context) => PasswordPage(),
         '/learn': (context) => LearnPage(), // ✅ PasswordPage route
-        
+        '/main': (context) => MainNavigator(), // 
       },
     );
   }

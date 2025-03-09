@@ -72,10 +72,9 @@ class _JavaFinalQuizPageState extends State<JavaFinalQuizPage> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pushAndRemoveUntil(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => JavaCourseSelectionPage()),
-                (Route<dynamic> route) => false,
               );
             },
             child: Text("Finish Course"),

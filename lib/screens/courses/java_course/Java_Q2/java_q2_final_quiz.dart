@@ -1,72 +1,80 @@
 import 'package:flutter/material.dart';
-import 'package:quackacademy/screens/courses/java_course/Java_Q1/java_all_lessons_page.dart';
+import 'package:quackacademy/screens/courses/java_course/java_course_page.dart'; // ✅ Import the Java Course Page
+import 'package:shared_preferences/shared_preferences.dart';
 
-class JavaQ1PretestPage extends StatefulWidget {
+class JavaQ2FinalQuizPage extends StatefulWidget {
   @override
-  _JavaQ1PretestPageState createState() => _JavaQ1PretestPageState();
+  _JavaQ2FinalQuizPageState createState() => _JavaQ2FinalQuizPageState();
 }
 
-class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
+class _JavaQ2FinalQuizPageState extends State<JavaQ2FinalQuizPage> {
   int _currentQuestionIndex = 0;
   int _score = 0;
-  int _selectedAnswerIndex = -1; // Track selected answer
-  bool _answered = false; // Track if the user has answered
+  int _selectedAnswerIndex = -1;
+  bool _answered = false;
 
-  // Updated Pre-Test Questions
+  // Final Quiz Questions
   final List<Map<String, dynamic>> _questions = [
     {
-      "question": "1. To determine the outcome of your code, one must know?",
+      "question": "1. What are the elements of Netbeans’ control area?",
       "options": [
-        "A. What is the specific problem you want to solve or the task you want it to accomplish?",
-        "B. What facts will we learn from the process?",
-        "C. What formulas are applicable to the issue at hand?",
-        "D. What will be added or no longer exist?"
+        "A. main menu bar, quick launch bar, search tool",
+        "B. reference area, main menu bar",
+        "C. working area, search tool",
+        "D. status area, working area"
       ],
       "correct": 0,
     },
     {
-      "question": "2. Finding your starting and ending point are crucial to listing the steps of the process. To determine a starting point, determine the answer to these questions, except?",
+      "question": "2. It refers to errors that will not display until you run or executes the program.",
       "options": [
-        "A. What data/inputs are available?",
-        "B. Where is that data located?",
-        "C. What facts will we learn from the process?",
-        "D. What formulas are applicable to the issue at hand?"
+        "A. Syntax error",
+        "B. Timing Error",
+        "C. Run-time error",
+        "D. Program Error"
       ],
-      "correct": 3,
+      "correct": 2,
     },
     {
-      "question": "3. As with the starting point, you can find the end point of your algorithm by focusing on these questions, except?",
+      "question": "3. It shows you the insert/overwriting status, cursor coordinates, upgrading status and some other info.",
       "options": [
-        "A. What facts will we learn from the process?",
-        "B. What changes from the start to the end?",
-        "C. What will be added or no longer exist?",
-        "D. How do the data values relate to each other?"
+        "A. Reference area",
+        "B. Working Area",
+        "C. Status Area",
+        "D. Main Menu"
       ],
-      "correct": 3,
+      "correct": 2,
     },
     {
-      "question": "4. To use a real-world example, let’s say your goal is to have lasagna for dinner. You’ve determined that the starting point is to find a recipe, and that the end result is that you’ll have a lasagna fully cooked and ready to eat by 7 PM. What will you do?",
+      "question": "4. What do you call an error that occurs after compilation of a java program?",
       "options": [
-        "A. Determine how will you accomplish each step.",
-        "B. List the steps from start to finish.",
-        "C. Find the ending point of the algorithm.",
-        "D. Determine the outcome of your code."
+        "A. Syntax error",
+        "B. Timing Error",
+        "C. Run-time error",
+        "D. Program Error"
+      ],
+      "correct": 0,
+    },
+    {
+      "question": "5. It refers to a free, open source, integrated development environment (IDE) that enables you to develop desktop, mobile and web applications.",
+      "options": [
+        "A. Syntax Error",
+        "B. Netbeans",
+        "C. Menu",
+        "D. Area"
       ],
       "correct": 1,
     },
-    {
-      "question": "5. Now that you’ve written your algorithm, it’s time to evaluate the process by?",
-      "options": [
-        "A. Review the algorithm.",
-        "B. List the steps from start to finish.",
-        "C. Find the ending point of the algorithm.",
-        "D. Determine how will you accomplish each step."
-      ],
-      "correct": 0,
-    },
+  
   ];
 
-  // Function to handle answer selection
+  /// Only change: put this INSIDE the State class
+  Future<void> _markJavaQ1Completed() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("java_q1_completed", true);
+  }
+
+  // Handle answer selection
   void _selectAnswer(int selectedIndex) {
     if (_answered) return; // Prevent multiple selections
 
@@ -84,17 +92,21 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
           if (_currentQuestionIndex < _questions.length - 1) {
             _currentQuestionIndex++; // Move to next question
             _selectedAnswerIndex = -1; // Reset selection
-            _answered = false; // Allow new selection
+            _answered = false;        // Allow new selection
           } else {
-            _showResultsDialog(); // Quiz finished
+            // Last question answered -> Show results
+            _showResultsDialog();
           }
         });
       });
     });
   }
 
-  // Show results at the end of the quiz
+  // Show final results & redirect to Java Course Page
   void _showResultsDialog() {
+    // Mark Q1 as completed:
+    _markJavaQ1Completed();
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -106,12 +118,11 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
         ),
         actions: [
           TextButton(
-            child: Text("Next: Lesson 1", style: TextStyle(color: Colors.greenAccent)),
+            child: Text("Finish", style: TextStyle(color: Colors.greenAccent)),
             onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => JavaAllLessonsPage()),
+                MaterialPageRoute(builder: (context) => JavaCourseSelectionPage()),
               );
             },
           ),
@@ -132,7 +143,11 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
               padding: EdgeInsets.all(16),
               child: Text(
                 "Score: $_score/${_questions.length}",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(
+                  fontSize: 18, 
+                  fontWeight: FontWeight.bold, 
+                  color: Colors.white
+                ),
               ),
             ),
 
@@ -152,7 +167,8 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
                   AnimatedContainer(
                     duration: Duration(milliseconds: 500),
                     height: 8,
-                    width: MediaQuery.of(context).size.width * ((_currentQuestionIndex + 1) / _questions.length),
+                    width: MediaQuery.of(context).size.width *
+                        ((_currentQuestionIndex + 1) / _questions.length),
                     decoration: BoxDecoration(
                       color: Colors.greenAccent,
                       borderRadius: BorderRadius.circular(10),
@@ -162,7 +178,7 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
               ),
             ),
 
-            _title("PRE-TEST"),
+            _title("FINAL QUIZ"),
 
             Expanded(
               child: Padding(
@@ -195,7 +211,11 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
       padding: EdgeInsets.symmetric(vertical: 16),
       child: Text(
         text,
-        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+        style: TextStyle(
+          fontSize: 24, 
+          fontWeight: FontWeight.bold, 
+          color: Colors.white
+        ),
       ),
     );
   }
@@ -204,7 +224,11 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
   Widget _question(String question) {
     return Text(
       question,
-      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+      style: TextStyle(
+        fontSize: 18, 
+        fontWeight: FontWeight.bold, 
+        color: Colors.white
+      ),
     );
   }
 

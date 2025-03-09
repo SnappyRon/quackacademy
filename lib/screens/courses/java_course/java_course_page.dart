@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:quackacademy/screens/courses/java_course/Java_Q1/java_q1_final_quiz.dart';
+import 'package:quackacademy/main_navigator.dart';
 import 'package:quackacademy/screens/courses/java_course/Java_Q1/java_q1_pretest_page.dart';
-import 'package:quackacademy/screens/courses/java_course/Java_Q3/java_final_quiz.dart';
+import 'package:quackacademy/screens/courses/java_course/Java_Q2/java_all_lessons_page.dart';
 import 'package:quackacademy/screens/courses/java_course/Java_Q3/java_pretest_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:quackacademy/screens/learn_page.dart';
+// Import the MainNavigator and pages for bottom nav navigation.
 
 class JavaCourseSelectionPage extends StatefulWidget {
   @override
@@ -15,6 +15,9 @@ class JavaCourseSelectionPage extends StatefulWidget {
 class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
   bool _isJavaQ1Completed = false;
   bool _isJavaQ3Completed = false;
+
+  // Set _currentIndex to 1 for the "Learn" tab
+  int _currentIndex = 1;
 
   @override
   void initState() {
@@ -30,10 +33,6 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
     });
   }
 
-  // -- THESE MARK METHODS are not strictly needed here anymore,
-  //    since we do the marking in each quiz file. We'll leave them out
-  //    to avoid confusion. The final quizzes handle marking internally.
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +47,7 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
                 alignment: Alignment.topLeft,
                 child: GestureDetector(
                   onTap: () {
-                    // Pop back to the LearnPage (restoring bottom nav)
+                    // Pop back to the previous page
                     Navigator.pop(context);
                   },
                   child: Container(
@@ -62,7 +61,7 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
                       style: TextStyle(
                         color: Colors.white, 
                         fontWeight: FontWeight.bold, 
-                        fontSize: 16
+                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -71,43 +70,133 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
             ),
 
             Text(
-              "Select a Java Quarter:",
+              "Select a Java Lesson:",
               style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
 
-            // Java Q1
+            // Java Quarter Cards
             _quarterCard(
               title: "Java Quarter 1",
               description: "Foundations of Java",
-              iconPath: "assets/java_logo.png",
+              iconPath: "assets/images/javaicon1.png",
               isCompleted: _isJavaQ1Completed,
               onTap: () async {
-                // Navigate to Q1 Final Quiz
                 await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => JavaQ1PretestPage()),
                 );
-                // After returning, refresh completion status
                 _loadLessonCompletion();
               },
             ),
-
-            // Java Q3
+            _quarterCard(
+              title: "Java Quarter 2",
+              description: "Apply Basics of Java Language",
+              iconPath: "assets/images/javaicon2.png",
+              isCompleted: _isJavaQ3Completed,
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => JavaAllLessonsPage2()),
+                );
+                _loadLessonCompletion();
+              },
+            ),
             _quarterCard(
               title: "Java Quarter 3",
               description: "Advanced Java topics",
-              iconPath: "assets/java_logo.png",
+              iconPath: "assets/images/javaicon2.png",
               isCompleted: _isJavaQ3Completed,
               onTap: () async {
-                // Navigate to Q3 Final Quiz
                 await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => JavaPreTestPage()),
                 );
-                // After returning, refresh completion status
                 _loadLessonCompletion();
               },
+            ),
+          ],
+        ),
+      ),
+      // Exact copy of your MainNavigator bottom nav design:
+      bottomNavigationBar: ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          backgroundColor: Colors.white,
+          selectedItemColor: Color(0xFF1A3A5F),
+          unselectedItemColor: Colors.black54,
+          selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          unselectedLabelStyle: TextStyle(fontSize: 12),
+          type: BottomNavigationBarType.fixed,
+          onTap: (index) {
+            if (index == _currentIndex) return;
+            switch (index) {
+              case 0:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => MainNavigator(initialIndex: 0)),
+                );
+                break;
+              case 1:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => MainNavigator(initialIndex: 1)),
+                );
+                break;
+              case 2:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => MainNavigator(initialIndex: 2)),
+                );
+                break;
+              case 3:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => MainNavigator(initialIndex: 3)),
+                );
+                break;
+            }
+          },
+          items: [
+            BottomNavigationBarItem(
+              icon: Image.asset(
+                'assets/images/Home.png',
+                width: 24,
+                height: 24,
+                color: _currentIndex == 0 ? Color(0xFF1A3A5F) : Colors.black54,
+              ),
+              label: "Home",
+            ),
+            BottomNavigationBarItem(
+              icon: Image.asset(
+                'assets/images/Courses.png',
+                width: 24,
+                height: 24,
+                color: _currentIndex == 1 ? Color(0xFF1A3A5F) : Colors.black54,
+              ),
+              label: "Learn",
+            ),
+            BottomNavigationBarItem(
+              icon: Image.asset(
+                'assets/images/Leaderboard.png',
+                width: 24,
+                height: 24,
+                color: _currentIndex == 2 ? Color(0xFF1A3A5F) : Colors.black54,
+              ),
+              label: "Leaderboard",
+            ),
+            BottomNavigationBarItem(
+              icon: Image.asset(
+                'assets/images/Profile.png',
+                width: 24,
+                height: 24,
+                color: _currentIndex == 3 ? Color(0xFF1A3A5F) : Colors.black54,
+              ),
+              label: "Profile",
             ),
           ],
         ),
@@ -115,7 +204,6 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
     );
   }
 
-  /// Card for each quarter, with "Completed" indicator if isCompleted == true
   Widget _quarterCard({
     required String title,
     required String description,
@@ -170,7 +258,7 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
                 child: Text(
                   "Completed",
                   style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14
+                    color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14,
                   ),
                 ),
               ),

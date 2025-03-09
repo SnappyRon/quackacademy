@@ -31,17 +31,17 @@ class DuckRaceGame extends FlameGame {
   SpriteComponent? finishLine;
 
   // We'll store base positions for lines
-  double startLineBaseX = 60;      // Where you want the Start line on-screen initially
-  double startLineBaseY = 0;       // We'll set it in onLoad
-  double finishLineBaseX = 60;      // Where you want the Finish line on-screen/off-screen
-  double finishLineBaseY = 0;      // We'll set it in onLoad
+  double startLineBaseX = 60; // Where you want the Start line on-screen initially
+  double startLineBaseY = 0;  // We'll set it in onLoad
+  double finishLineBaseX = 60; // Where you want the Finish line off-screen initially
+  double finishLineBaseY = 0;  // We'll set it in onLoad
 
   // We'll track how much the water layer has scrolled horizontally
   double waveScrollX = 0;
   double waterSpeedX = 0;
 
   // If we want the Finish line to scroll in from the right after some event,
-  // we can use this. If we want it pinned from the start, we treat it the same
+  // we can use this flag.
   bool startFinishLineScrolling = false;
 
   @override
@@ -85,15 +85,14 @@ class DuckRaceGame extends FlameGame {
       ..priority = 0;
     add(finishLine!);
 
-    // Decide your base Y for both lines
-    // e.g. ~72% of screen => bottom is near the wave line
+    // Decide your base Y for both lines; e.g., near the bottom of the screen
     startLineBaseY = size.y * 0.99;
     finishLineBaseY = size.y * 0.99;
 
-    // The Start line is fully on screen at x=60
+    // The Start line is fully on screen at x=80.
     startLineBaseX = 80;
-    // The Finish line is off-screen to the right
-    finishLineBaseX = size.x + 300;
+    // The Finish line is initially off-screen to the right.
+    finishLineBaseX = size.x + 200;
 
     // 4) Ducks (priority=1) so they appear in front of lines
     final duckSheet = await images.load('game_assets/duck(15FPS).png');
@@ -189,33 +188,32 @@ class DuckRaceGame extends FlameGame {
   void update(double dt) {
     super.update(dt);
 
-    // 1) Let the parallax scroll normally (the water layer moves left at ~20.736 px/sec)
-    // 2) We track how far the water has scrolled in waveScrollX
+    // 1) Track how far the water has scrolled
     waveScrollX += waterSpeedX * dt;
 
-    // If the water repeats, you could do modulo to keep waveScrollX from growing too big:
-    // waveScrollX = waveScrollX % 440; // if your image is 440 wide, for instance
-
-    // 3) Pin Start line to wave line => lineX = baseX - waveScrollX
-    //    So if the wave scrolled left 100px, we shift the line right 100px to compensate,
-    //    keeping it visually at the same wave position.
+    // 2) Keep start line pinned to the wave movement
     if (startLine != null) {
       startLine!.position.x = startLineBaseX - waveScrollX;
       startLine!.position.y = startLineBaseY;
     }
 
-    // 4) If you want the Finish line pinned from the start, do the same:
+    // 3) Move the finish line into the screen when scrolling is triggered.
+    // Here, we want the finish line to move left until it stops at 30% of the screen width.
     if (finishLine != null) {
-      if (!startFinishLineScrolling) {
-        // If we want it stationary off-screen for now, you can skip adjusting it
-        // or keep it pinned. If pinned, do the same approach:
-        finishLine!.position.x = finishLineBaseX - waveScrollX;
-        finishLine!.position.y = finishLineBaseY;
+      if (startFinishLineScrolling) {
+        finishLine!.position.x -= 80 * dt; // Move left at 80 pixels/sec.
+        // Define a stop position (e.g., 30% of the screen width).
+        double stopPosition = size.x * 0.01;
+        if (finishLine!.position.x <= stopPosition) {
+          finishLine!.position.x = stopPosition;
+        }
+        // Debug: Print the finish line X position.
+        print('Finish line X position: ${finishLine!.position.x}');
       } else {
-        // If you want the finish line to "scroll in" from the right, you can do:
-        finishLine!.position.x -= 14 * dt; 
-        // or do pinned as well, your choice
+        // Keep the finish line off-screen.
+        finishLine!.position.x = finishLineBaseX;
       }
+      finishLine!.position.y = finishLineBaseY;
     }
 
     _updateLabelPositions();
@@ -225,7 +223,7 @@ class DuckRaceGame extends FlameGame {
   void onGameResize(Vector2 canvasSize) {
     super.onGameResize(canvasSize);
 
-    // Recompute baseY if you want the line pinned to ~72% on resize
+    // Recompute baseY for both lines on resize.
     startLineBaseY = canvasSize.y * 0.99;
     finishLineBaseY = canvasSize.y * 0.99;
 
@@ -246,7 +244,7 @@ class DuckRaceGame extends FlameGame {
     _updateLabelPositions();
   }
 
-  /// Reassign ducks
+  /// Reassign ducks based on top players.
   void updateDucks(List<Map<String, dynamic>> topPlayers) {
     if (topPlayers.isEmpty) {
       duck1PlayerId = duck2PlayerId = duck3PlayerId = null;
@@ -296,14 +294,14 @@ class DuckRaceGame extends FlameGame {
     }
   }
 
-  /// Move the duck assigned to that player's current rank
+  /// Move the duck assigned to that player's current rank.
   void moveDuckForPlayer(String playerId) {
     if (playerId == duck1PlayerId && duck1 != null) {
-      duck1!.position.x += 18;
+      duck1!.position.x += 25;
     } else if (playerId == duck2PlayerId && duck2 != null) {
-      duck2!.position.x += 18;
+      duck2!.position.x += 25;
     } else if (playerId == duck3PlayerId && duck3 != null) {
-      duck3!.position.x += 18;
+      duck3!.position.x += 25;
     }
     _updateLabelPositions();
   }

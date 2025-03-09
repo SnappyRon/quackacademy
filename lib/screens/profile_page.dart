@@ -50,7 +50,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _navigateToInformation() async {
-    await Navigator.pushNamed(context, '/information');
+    await Navigator.of(context, rootNavigator: false).pushNamed('/information');
     _fetchUserData(); // Refresh data after returning
   }
 
@@ -124,7 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   SizedBox(height: 8),
                                   ElevatedButton(
                                     onPressed: () {
-                                      Navigator.pushNamed(context, '/password');
+                                      Navigator.of(context, rootNavigator: false).pushNamed('/password');
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.white,
@@ -229,7 +229,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 onPressed: () async {
                   await FirebaseAuth.instance.signOut();
-                  Navigator.pushReplacementNamed(context, '/login');
+                  Navigator.of(context, rootNavigator: true).pushReplacementNamed('/login');
                 },
                 icon: Icon(Icons.logout, color: Colors.white),
                 label: Text(

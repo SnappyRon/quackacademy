@@ -65,6 +65,56 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
       ],
       "correct": 0,
     },
+    {
+      "question": "6. The aim of pseudocode is to make programming easier by using symbols",
+      "options": [
+        "A. Yes",
+        "B. No",
+        "C. Maybe",
+        "D. All of the above"
+      ],
+      "correct": 2,
+    },
+    {
+      "question": "7. Is a way of expressing an algorithm without conforming to specific syntactic rules.",
+      "options": [
+        "A. Pseudocode",
+        "B. Data Type",
+        "C. Algorithm",
+        "D. Flowchart"
+      ],
+      "correct": 0,
+    },
+    {
+      "question": "8. It is one of the key characteristics which differentiate a human being from other living creatures on the earth",
+      "options": [
+        "A. Kindness",
+        "B. Character",
+        "C. Intelligence",
+        "D. Beauty"
+      ],
+      "correct": 2,
+    },
+    {
+      "question": "9. It indicates any type of internal operation inside the processor or memory.",
+      "options": [
+        "A. Connector",
+        "B. Terminal",
+        "C. Input/Output",
+        "D. Process"
+      ],
+      "correct": 1,
+    },
+    {
+      "question": "10. It is a data type that holds number with a decimal point.",
+      "options": [
+        "A. Boolean",
+        "B. Interger",
+        "C. String",
+        "D. Float"
+      ],
+      "correct": 3,
+    },
   ];
 
   /// Only change: put this INSIDE the State class
@@ -119,9 +169,7 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
           TextButton(
             child: Text("Finish", style: TextStyle(color: Colors.greenAccent)),
             onPressed: () {
-              Navigator.pop(context); // Close the dialog
-              // Now navigate to JavaCourseSelectionPage
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => JavaCourseSelectionPage()),
               );
