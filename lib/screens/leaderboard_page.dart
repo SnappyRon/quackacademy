@@ -1,20 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:quackacademy/main_navigator.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LeaderboardPage extends StatelessWidget {
+/// Provider for student leaderboard data.
+final studentLeaderboardProvider = StreamProvider.family<QuerySnapshot, String>((ref, gameCode) {
+  return FirebaseFirestore.instance
+      .collection('rooms')
+      .doc(gameCode)
+      .collection('players')
+      .orderBy('points', descending: true)
+      .snapshots();
+});
+
+/// Provider for teacher view fallback data (when quizId is empty).
+final teacherPlayersProvider = StreamProvider.family<QuerySnapshot, String>((ref, gameCode) {
+  return FirebaseFirestore.instance
+      .collection('rooms')
+      .doc(gameCode)
+      .collection('players')
+      .orderBy('points', descending: true)
+      .snapshots();
+});
+
+/// Provider for quiz sessions when a quizId is provided.
+final quizSessionsProvider = StreamProvider.family<QuerySnapshot, String>((ref, quizId) {
+  return FirebaseFirestore.instance
+      .collection('quizSessions')
+      .where(FieldPath.documentId, isEqualTo: quizId)
+      .snapshots();
+});
+
+/// Provider for a session's leaderboard.
+final sessionLeaderboardProvider = StreamProvider.family<QuerySnapshot, DocumentReference>((ref, sessionRef) {
+  return sessionRef
+      .collection('leaderboard')
+      .orderBy('score', descending: true)
+      .snapshots();
+});
+
+class LeaderboardPage extends ConsumerWidget {
   final bool isTeacher;
   final String currentPlayerId;
-  final String quizId; // Used for student view (if needed)
+  final String quizId; // For teacher view (if provided)
+  final String gameCode; // Used to query room players
 
   LeaderboardPage({
     required this.isTeacher,
     required this.currentPlayerId,
     required this.quizId,
+    required this.gameCode,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: const Color(0xFF1A3A5F),
       body: SafeArea(
@@ -31,7 +70,7 @@ class LeaderboardPage extends StatelessWidget {
                     color: Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: isTeacher ? _buildTeacherView() : _buildStudentView(),
+                  child: isTeacher ? _buildTeacherView(ref) : _buildStudentView(ref),
                 ),
               ),
             ),
@@ -41,115 +80,109 @@ class LeaderboardPage extends StatelessWidget {
     );
   }
 
-  /// For students: Standard leaderboard view.
-/// For students: Standard leaderboard view showing their quiz history.
-Widget _buildStudentView() {
-  return Column(
-    children: [
-      _buildHeaderRow(),
-      Expanded(
-        child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('studentHistory')
-              .where('studentId', isEqualTo: currentPlayerId)
-              .orderBy('timestamp', descending: true)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(child: Text("No leaderboard history found"));
-            }
-            final docs = snapshot.data!.docs;
-            return ListView.builder(
-              itemCount: docs.length,
-              itemBuilder: (context, index) {
-                return _buildStudentLeaderboardRow(docs[index], index);
-              },
-            );
-          },
-        ),
-      ),
-    ],
-  );
-}
-
-  /// For teacher: List of previous quiz sessions.
-  /// For teacher: List of previous quiz sessions.
-/// For teacher: List of previous quiz sessions (or a single session if quizId is provided).
-Widget _buildTeacherView() {
-  // If a quizId is provided (from teacher navigation), show only that session.
-  final sessionQuery = (quizId.isNotEmpty)
-      ? FirebaseFirestore.instance
-          .collection('quizSessions')
-          .where(FieldPath.documentId, isEqualTo: quizId)
-          .snapshots()
-      : FirebaseFirestore.instance
-          .collection('quizSessions')
-          .orderBy('date', descending: true)
-          .snapshots();
-
-  return StreamBuilder<QuerySnapshot>(
-    stream: sessionQuery,
-    builder: (context, sessionSnapshot) {
-      if (sessionSnapshot.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
-      }
-      if (!sessionSnapshot.hasData || sessionSnapshot.data!.docs.isEmpty) {
-        return const Center(child: Text("No quiz sessions found."));
-      }
-      final sessions = sessionSnapshot.data!.docs;
-      return ListView.builder(
-        itemCount: sessions.length,
-        itemBuilder: (context, sessionIndex) {
-          final sessionData =
-              sessions[sessionIndex].data() as Map<String, dynamic>;
-          final sessionTitle = sessionData['quizTitle'] ?? 'Quiz Session';
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-            child: ExpansionTile(
-              title: Text(
-                sessionTitle,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+  /// Build student view using the studentLeaderboardProvider.
+  Widget _buildStudentView(WidgetRef ref) {
+    final leaderboardAsync = ref.watch(studentLeaderboardProvider(gameCode));
+    return leaderboardAsync.when(
+      data: (snapshot) {
+        if (snapshot.docs.isEmpty) {
+          return const Center(child: Text("No leaderboard data found"));
+        }
+        return Column(
+          children: [
+            _buildHeaderRow(),
+            Expanded(
+              child: ListView.builder(
+                itemCount: snapshot.docs.length,
+                itemBuilder: (context, index) {
+                  return _buildStudentLeaderboardRow(snapshot.docs[index], index);
+                },
               ),
-              children: [
-                _buildHeaderRow(), // Header for the leaderboard inside the session.
-                StreamBuilder<QuerySnapshot>(
-                  stream: sessions[sessionIndex].reference
-                      .collection('leaderboard')
-                      .orderBy('score', descending: true)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const Center(
-                          child: CircularProgressIndicator());
-                    }
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(
-                          child: Text("No players in this session."));
-                    }
-                    final docs = snapshot.data!.docs;
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: const ClampingScrollPhysics(),
-                      itemCount: docs.length,
-                      itemBuilder: (context, index) {
-                        return _buildTeacherLeaderboardRow(docs[index], index);
-                      },
-                    );
-                  },
-                ),
-              ],
             ),
+          ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(child: Text("Error: $error")),
+    );
+  }
+
+  /// Build teacher view using either quizSessionsProvider or teacherPlayersProvider.
+  Widget _buildTeacherView(WidgetRef ref) {
+    if (quizId.isNotEmpty) {
+      final sessionsAsync = ref.watch(quizSessionsProvider(quizId));
+      return sessionsAsync.when(
+        data: (snapshot) {
+          if (snapshot.docs.isEmpty) {
+            return const Center(child: Text("No quiz sessions found."));
+          }
+          return ListView.builder(
+            itemCount: snapshot.docs.length,
+            itemBuilder: (context, sessionIndex) {
+              final sessionDoc = snapshot.docs[sessionIndex];
+              final sessionData = sessionDoc.data() as Map<String, dynamic>;
+              final sessionTitle = sessionData['quizTitle'] ?? 'Quiz Session';
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                child: ExpansionTile(
+                  title: Text(
+                    sessionTitle,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  children: [
+                    _buildHeaderRow(), // Leaderboard header.
+                    // Use a nested Consumer to watch the session leaderboard.
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final sessionLeaderboardAsync =
+                            ref.watch(sessionLeaderboardProvider(sessionDoc.reference));
+                        return sessionLeaderboardAsync.when(
+                          data: (leaderboardSnapshot) {
+                            if (leaderboardSnapshot.docs.isEmpty) {
+                              return const Center(child: Text("No players in this session."));
+                            }
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              physics: const ClampingScrollPhysics(),
+                              itemCount: leaderboardSnapshot.docs.length,
+                              itemBuilder: (context, index) {
+                                return _buildTeacherLeaderboardRow(leaderboardSnapshot.docs[index], index);
+                              },
+                            );
+                          },
+                          loading: () => const Center(child: CircularProgressIndicator()),
+                          error: (error, stack) => Center(child: Text("Error: $error")),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
           );
         },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text("Error: $error")),
       );
-    },
-  );
-}
-
+    } else {
+      final leaderboardAsync = ref.watch(teacherPlayersProvider(gameCode));
+      return leaderboardAsync.when(
+        data: (snapshot) {
+          if (snapshot.docs.isEmpty) {
+            return const Center(child: Text("No leaderboard data found"));
+          }
+          return ListView.builder(
+            itemCount: snapshot.docs.length,
+            itemBuilder: (context, index) {
+              return _buildTeacherLeaderboardRow(snapshot.docs[index], index);
+            },
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text("Error: $error")),
+      );
+    }
+  }
 
   /// Header row used in both views.
   Widget _buildHeaderRow() {
@@ -205,8 +238,7 @@ Widget _buildTeacherView() {
   Widget _buildStudentLeaderboardRow(DocumentSnapshot doc, int index) {
     final data = doc.data() as Map<String, dynamic>;
     final playerName = data['name'] ?? 'No Name';
-    final score = data['score'] ?? 0;
-    // Use the provided quizTitle field if available; otherwise use a fallback.
+    final score = data['points'] ?? 0;
     final quizTitle = data['quizTitle'] ?? 'Quiz Session';
     final imagePath = data['image'] ?? 'assets/images/Student1.png';
     final rank = index + 1;
@@ -283,7 +315,6 @@ Widget _buildTeacherView() {
     final data = doc.data() as Map<String, dynamic>;
     final playerName = data['name'] ?? 'No Name';
     final score = data['score'] ?? 0;
-    // For teacher view, assume the quiz title comes from the parent session.
     final quizTitle = data['quizTitle'] ?? 'Quiz Session';
     final imagePath = data['image'] ?? 'assets/images/Student1.png';
     final rank = index + 1;
@@ -329,7 +360,7 @@ Widget _buildTeacherView() {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          // Quiz Title (from session header; optional here)
+          // Quiz Title
           Expanded(
             flex: 3,
             child: Text(
@@ -368,7 +399,7 @@ Widget _buildTeacherView() {
             } else {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => MainNavigator()),
+                MaterialPageRoute(builder: (context) => MainNavigator(gameCode: 'defaultGameCode')),
               );
             }
           },
@@ -381,14 +412,17 @@ Widget _buildTeacherView() {
           ),
           child: const Text(
             "Back",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Colors.white, 
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
     );
   }
 
-  /// Logo and Title Section
+  /// Logo and Title Section.
   Widget _buildLogoSection() {
     return Column(
       children: [
@@ -396,11 +430,19 @@ Widget _buildTeacherView() {
         const SizedBox(height: 5),
         const Text(
           "QUACKACADEMY",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(
+            fontSize: 22, 
+            fontWeight: FontWeight.bold, 
+            color: Colors.white,
+          ),
         ),
         const Text(
           "LEADERBOARDS",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(
+            fontSize: 18, 
+            fontWeight: FontWeight.bold, 
+            color: Colors.white,
+          ),
         ),
       ],
     );

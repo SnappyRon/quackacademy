@@ -1,13 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class InformationPage extends StatefulWidget {
+/// Provider to manage loading state for the InformationPage.
+final informationLoadingProvider = StateProvider<bool>((ref) => false);
+
+class InformationPage extends ConsumerStatefulWidget {
   @override
-  _InformationPageState createState() => _InformationPageState();
+  ConsumerState<InformationPage> createState() => _InformationPageState();
 }
 
-class _InformationPageState extends State<InformationPage> {
+class _InformationPageState extends ConsumerState<InformationPage> {
   final _fullNameController = TextEditingController();
   final _nicknameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -16,15 +20,13 @@ class _InformationPageState extends State<InformationPage> {
 
   final User? user = FirebaseAuth.instance.currentUser;
 
-  bool _isLoading = false;
-
   @override
   void initState() {
     super.initState();
     _fetchUserInfo();
   }
 
-  /// ✅ Fetch existing user data from Firestore
+  /// Fetch existing user data from Firestore.
   void _fetchUserInfo() async {
     if (user != null) {
       try {
@@ -49,18 +51,17 @@ class _InformationPageState extends State<InformationPage> {
     }
   }
 
-  /// ✅ Update user info in Firestore & Firebase Auth
+  /// Update user info in Firestore & Firebase Auth.
   void _updateInfo() async {
-    setState(() => _isLoading = true);
-
+    ref.read(informationLoadingProvider.notifier).state = true;
     try {
       if (user != null) {
-        /// ✅ Update Email in FirebaseAuth if changed
+        /// Update Email in FirebaseAuth if changed.
         if (_emailController.text.trim() != user!.email) {
           await user!.updateEmail(_emailController.text.trim());
         }
 
-        /// ✅ Update Firestore Document
+        /// Update Firestore Document.
         await FirebaseFirestore.instance.collection('users').doc(user!.uid).update({
           'fullName': _fullNameController.text.trim(),
           'nickname': _nicknameController.text.trim(),
@@ -89,12 +90,13 @@ class _InformationPageState extends State<InformationPage> {
         SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
       );
     } finally {
-      setState(() => _isLoading = false);
+      ref.read(informationLoadingProvider.notifier).state = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(informationLoadingProvider);
     return Scaffold(
       backgroundColor: Color(0xFF1A3A5F),
       body: SafeArea(
@@ -117,7 +119,6 @@ class _InformationPageState extends State<InformationPage> {
                 "Information",
                 style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
               ),
-
               SizedBox(height: 20),
 
               /// Form
@@ -134,7 +135,7 @@ class _InformationPageState extends State<InformationPage> {
                     SizedBox(height: 20),
 
                     /// Confirm Button
-                    _isLoading
+                    isLoading
                         ? CircularProgressIndicator(color: Colors.orange)
                         : ElevatedButton(
                             onPressed: _updateInfo,
@@ -151,7 +152,7 @@ class _InformationPageState extends State<InformationPage> {
     );
   }
 
-  /// 📋 Reusable TextField Builder
+  /// Reusable TextField Builder.
   Widget _buildTextField(String label, TextEditingController controller) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),

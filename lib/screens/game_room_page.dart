@@ -1,8 +1,27 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'quiz_page.dart'; // ✅ Import Quiz Page
+import 'quiz_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class GameRoomPage extends StatefulWidget {
+/// Provider that streams the room document data.
+final roomDocumentProvider = StreamProvider.family<DocumentSnapshot<Map<String, dynamic>>, String>((ref, gameCode) {
+  return FirebaseFirestore.instance.collection('rooms').doc(gameCode).snapshots();
+});
+
+/// Provider that streams the players list for a room.
+final playersProvider = StreamProvider.family<QuerySnapshot<Map<String, dynamic>>, String>((ref, gameCode) {
+  return FirebaseFirestore.instance
+      .collection('rooms')
+      .doc(gameCode)
+      .collection('players')
+      .snapshots();
+});
+
+/// Provider to manage the ready state of the current player.
+final gameRoomReadyProvider = StateProvider<bool>((ref) => false);
+
+class GameRoomPage extends ConsumerStatefulWidget {
   final String gameCode;
   final bool isTeacher;
   final String playerName;
@@ -14,22 +33,22 @@ class GameRoomPage extends StatefulWidget {
   });
 
   @override
-  _GameRoomPageState createState() => _GameRoomPageState();
+  ConsumerState<GameRoomPage> createState() => _GameRoomPageState();
 }
 
-class _GameRoomPageState extends State<GameRoomPage> {
+class _GameRoomPageState extends ConsumerState<GameRoomPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late String userId;
-  bool isReady = false;
+  bool _hasNavigated = false; // Prevent multiple navigations on game start.
 
   @override
   void initState() {
     super.initState();
     _setupGameRoom();
-    _listenForGameStart();
+    // Removed ref.listen from here.
   }
 
-  /// ✅ Ensure game room exists & initialize missing fields
+  /// Ensure game room exists & initialize missing fields.
   void _setupGameRoom() async {
     final roomRef = _firestore.collection('rooms').doc(widget.gameCode);
     final roomSnapshot = await roomRef.get();
@@ -38,14 +57,15 @@ class _GameRoomPageState extends State<GameRoomPage> {
       await roomRef.set({
         'gameStarted': false,
         'selectedQuiz': '',
-        'requiredPlayers': 2, // Default required players
-        'admin': widget.playerName, // ✅ Store admin name separately
+        'requiredPlayers': 2, // Default required players.
+        'admin': widget.playerName, // Store admin name.
       });
     }
 
+    // For simplicity, we set userId to the provided player name.
     userId = widget.playerName;
 
-    // ✅ Add player only if NOT a teacher
+    // If the user is a student, add them to the room.
     if (!widget.isTeacher) {
       await roomRef.collection('players').doc(userId).set({
         'name': widget.playerName,
@@ -54,45 +74,20 @@ class _GameRoomPageState extends State<GameRoomPage> {
     }
   }
 
-  /// ✅ Toggle Ready/Not Ready
+  /// Toggle Ready/Not Ready.
   void _toggleReady() async {
-    setState(() {
-      isReady = !isReady;
-    });
-
+    // Toggle local ready state using Riverpod provider.
+    ref.read(gameRoomReadyProvider.notifier).update((state) => !state);
+    bool newReady = ref.read(gameRoomReadyProvider);
     await _firestore
         .collection('rooms')
         .doc(widget.gameCode)
         .collection('players')
         .doc(userId)
-        .update({'ready': isReady});
+        .update({'ready': newReady});
   }
 
-  /// ✅ Listen for Game Start & Redirect Players
-  void _listenForGameStart() {
-    _firestore.collection('rooms').doc(widget.gameCode).snapshots().listen((snapshot) {
-      if (snapshot.exists) {
-        bool gameStarted = snapshot.data()?['gameStarted'] ?? false;
-        String quizId = snapshot.data()?['selectedQuiz'] ?? '';
-
-        if (gameStarted && quizId.isNotEmpty) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => QuizPage(
-                gameCode: widget.gameCode,
-                quizId: quizId,
-                currentPlayerId: userId,
-                isTeacher: widget.isTeacher,
-              ),
-            ),
-          );
-        }
-      }
-    });
-  }
-
-  /// ✅ Start Game (Only for Teacher)
+  /// Start Game (Only for Teacher).
   void _startGame() async {
     String? selectedQuizId = await _selectQuiz();
     if (selectedQuizId == null) return;
@@ -107,7 +102,7 @@ class _GameRoomPageState extends State<GameRoomPage> {
     );
   }
 
-  /// ✅ Quiz Selection Dialog
+  /// Quiz Selection Dialog.
   Future<String?> _selectQuiz() async {
     QuerySnapshot quizSnapshot = await _firestore.collection('quizzes').get();
     if (quizSnapshot.docs.isEmpty) {
@@ -142,7 +137,7 @@ class _GameRoomPageState extends State<GameRoomPage> {
     );
   }
 
-  /// ✅ Exit Room
+  /// Exit Room.
   void _exitRoom() async {
     if (!widget.isTeacher) {
       await _firestore
@@ -152,12 +147,34 @@ class _GameRoomPageState extends State<GameRoomPage> {
           .doc(userId)
           .delete();
     }
-
     Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
+    // Listen for room document changes in the build method.
+    ref.listen(roomDocumentProvider(widget.gameCode), (previous, next) {
+      if (next is AsyncData) {
+        final data = next.value?.data();
+        bool gameStarted = data?['gameStarted'] ?? false;
+        String quizId = data?['selectedQuiz'] ?? '';
+        if (gameStarted && quizId.isNotEmpty && !_hasNavigated) {
+          _hasNavigated = true;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => QuizPage(
+                gameCode: widget.gameCode,
+                quizId: quizId,
+                currentPlayerId: userId,
+                isTeacher: widget.isTeacher,
+              ),
+            ),
+          );
+        }
+      }
+    });
+
     return Scaffold(
       backgroundColor: Color(0xFF1A3A5F),
       body: SafeArea(
@@ -173,7 +190,7 @@ class _GameRoomPageState extends State<GameRoomPage> {
     );
   }
 
-  /// ✅ Header with Duck Logo and Title
+  /// Header with Duck Logo and Title.
   Widget _buildHeader() {
     return Column(
       children: [
@@ -193,7 +210,7 @@ class _GameRoomPageState extends State<GameRoomPage> {
     );
   }
 
-  /// ✅ Display Admin Info (Teacher Name)
+  /// Display Admin Info (Teacher Name).
   Widget _buildAdminInfo() {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -211,16 +228,13 @@ class _GameRoomPageState extends State<GameRoomPage> {
     );
   }
 
-  /// ✅ Real-Time Player List (White Background)
+  /// Real-Time Player List using Riverpod.
   Widget _buildPlayerList() {
+    final playersAsync = ref.watch(playersProvider(widget.gameCode));
     return Expanded(
-      child: StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('rooms').doc(widget.gameCode).collection('players').snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-
-          final players = snapshot.data!.docs;
-
+      child: playersAsync.when(
+        data: (snapshot) {
+          final players = snapshot.docs;
           return Container(
             margin: EdgeInsets.symmetric(horizontal: 16),
             padding: EdgeInsets.all(8),
@@ -234,7 +248,6 @@ class _GameRoomPageState extends State<GameRoomPage> {
                 final player = players[index];
                 final playerName = player['name'];
                 final isPlayerReady = player['ready'];
-
                 return ListTile(
                   title: Text(
                     playerName,
@@ -263,11 +276,13 @@ class _GameRoomPageState extends State<GameRoomPage> {
             ),
           );
         },
+        loading: () => Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text("Error loading players")),
       ),
     );
   }
 
-  /// ✅ Footer with Game Code & Start Button (Styled)
+  /// Footer with Game Code & Start Button.
   Widget _buildFooter() {
     return Padding(
       padding: EdgeInsets.all(16),

@@ -1,74 +1,72 @@
 import 'dart:math' as math; // for math.pow
+import 'package:flame/effects.dart';
 import 'package:flame/game.dart';
 import 'package:flame/parallax.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+/// Riverpod provider to expose the DuckRaceGame instance.
+/// This allows external widgets to interact with the game if needed.
+final duckRaceGameProvider = Provider<DuckRaceGame>((ref) => DuckRaceGame());
 
 class DuckRaceGame extends FlameGame {
   static const int duckFrames = 15;
 
-  // Ducks
+  // SpriteAnimationComponents for ducks.
   SpriteAnimationComponent? duck1;
   SpriteAnimationComponent? duck2;
   SpriteAnimationComponent? duck3;
 
-  // Labels for each duck (player name)
+  // Labels for each duck (e.g. player names).
   TextComponent? duck1Label;
   TextComponent? duck2Label;
   TextComponent? duck3Label;
 
-  // Which player is assigned to each duck
-  String? duck1PlayerId;
-  String? duck2PlayerId;
-  String? duck3PlayerId;
+  // Map from playerId to duck component and label for movement.
+  final Map<String, SpriteAnimationComponent> playerDuckMap = {};
+  final Map<String, TextComponent> playerLabelMap = {};
 
-  // Background
+  // Persistent mapping: playerId => duck index (0,1,2).
+  final Map<String, int> currentDuckAssignments = {};
+
+  // Background and lines...
   ParallaxComponent? backgroundParallax;
-
-  // Start/Finish lines
   SpriteComponent? startLine;
   SpriteComponent? finishLine;
-
-  // We'll store base positions for lines
-  double startLineBaseX = 60; // Where you want the Start line on-screen initially
-  double startLineBaseY = 0;  // We'll set it in onLoad
-  double finishLineBaseX = 60; // Where you want the Finish line off-screen initially
-  double finishLineBaseY = 0;  // We'll set it in onLoad
-
-  // We'll track how much the water layer has scrolled horizontally
+  double startLineBaseX = 60;
+  double startLineBaseY = 0;
+  double finishLineBaseX = 60;
+  double finishLineBaseY = 0;
   double waveScrollX = 0;
   double waterSpeedX = 0;
-
-  // If we want the Finish line to scroll in from the right after some event,
-  // we can use this flag.
   bool startFinishLineScrolling = false;
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // 1) Parallax background
+    // 1) Parallax background.
     backgroundParallax = await loadParallaxComponent(
       [
-        ParallaxImageData('game_assets/BG1(440x246).png'), // layer 0
-        ParallaxImageData('game_assets/BG2(440x246).png'), // layer 1
-        ParallaxImageData('game_assets/BG3(440x246).png'), // layer 2
-        ParallaxImageData('game_assets/BG4(440x246).png'), // layer 3
-        ParallaxImageData('game_assets/BG5(440x246).png'), // layer 4 = WATER
-        ParallaxImageData('game_assets/BG6(440x246).png'), // layer 5
+        ParallaxImageData('game_assets/BG1(440x246).png'),
+        ParallaxImageData('game_assets/BG2(440x246).png'),
+        ParallaxImageData('game_assets/BG3(440x246).png'),
+        ParallaxImageData('game_assets/BG4(440x246).png'),
+        ParallaxImageData('game_assets/BG5(440x246).png'),
+        ParallaxImageData('game_assets/BG6(440x246).png'),
       ],
       baseVelocity: Vector2(10, 0),
       velocityMultiplierDelta: Vector2(1.2, 0),
       repeat: ImageRepeat.repeatX,
-    )..priority = -1; // behind everything
+    )..priority = -1;
     add(backgroundParallax!);
 
-    // 2) Calculate the water layer’s horizontal speed
-    //    The water is layer index=4 => speed = baseVelocity.x * (1.2^4)
-    waterSpeedX = 10 * math.pow(1.2, 4).toDouble(); // ~ 20.736
+    // 2) Water layer speed calculation.
+    waterSpeedX = 10 * math.pow(1.2, 4).toDouble();
 
-    // 3) Create Start/Finish lines (priority=0)
+    // 3) Create Start/Finish lines.
     final startSprite = await loadSprite('game_assets/Start Line Layer.png');
     startLine = SpriteComponent()
       ..sprite = startSprite
@@ -85,16 +83,12 @@ class DuckRaceGame extends FlameGame {
       ..priority = 0;
     add(finishLine!);
 
-    // Decide your base Y for both lines; e.g., near the bottom of the screen
     startLineBaseY = size.y * 0.99;
     finishLineBaseY = size.y * 0.99;
-
-    // The Start line is fully on screen at x=80.
     startLineBaseX = 80;
-    // The Finish line is initially off-screen to the right.
     finishLineBaseX = size.x + 200;
 
-    // 4) Ducks (priority=1) so they appear in front of lines
+    // 4) Create Ducks.
     final duckSheet = await images.load('game_assets/duck(15FPS).png');
     final frameWidth = duckSheet.width / duckFrames;
     final frameHeight = duckSheet.height.toDouble();
@@ -106,7 +100,7 @@ class DuckRaceGame extends FlameGame {
       row: 0,
       from: 0,
       to: duckFrames - 1,
-      stepTime: 0.066, // ~15 FPS
+      stepTime: 0.066,
     );
 
     duck1 = SpriteAnimationComponent()
@@ -130,7 +124,7 @@ class DuckRaceGame extends FlameGame {
       ..priority = 1;
     add(duck3!);
 
-    // 5) Duck labels (priority=2)
+    // 5) Create Duck labels.
     final labelStyle1 = TextPaint(
       style: const TextStyle(
         fontSize: 11,
@@ -188,29 +182,21 @@ class DuckRaceGame extends FlameGame {
   void update(double dt) {
     super.update(dt);
 
-    // 1) Track how far the water has scrolled
     waveScrollX += waterSpeedX * dt;
 
-    // 2) Keep start line pinned to the wave movement
     if (startLine != null) {
       startLine!.position.x = startLineBaseX - waveScrollX;
       startLine!.position.y = startLineBaseY;
     }
 
-    // 3) Move the finish line into the screen when scrolling is triggered.
-    // Here, we want the finish line to move left until it stops at 30% of the screen width.
     if (finishLine != null) {
       if (startFinishLineScrolling) {
-        finishLine!.position.x -= 80 * dt; // Move left at 80 pixels/sec.
-        // Define a stop position (e.g., 30% of the screen width).
-        double stopPosition = size.x * 0.01;
+        finishLine!.position.x -= 80 * dt;
+        double stopPosition = size.x * 0.0000009;
         if (finishLine!.position.x <= stopPosition) {
           finishLine!.position.x = stopPosition;
         }
-        // Debug: Print the finish line X position.
-        print('Finish line X position: ${finishLine!.position.x}');
       } else {
-        // Keep the finish line off-screen.
         finishLine!.position.x = finishLineBaseX;
       }
       finishLine!.position.y = finishLineBaseY;
@@ -222,12 +208,9 @@ class DuckRaceGame extends FlameGame {
   @override
   void onGameResize(Vector2 canvasSize) {
     super.onGameResize(canvasSize);
-
-    // Recompute baseY for both lines on resize.
     startLineBaseY = canvasSize.y * 0.99;
     finishLineBaseY = canvasSize.y * 0.99;
 
-    // Ducks
     if (duck1 != null) {
       final oldX = duck1!.position.x;
       duck1!.position = Vector2(oldX, canvasSize.y * 0.70);
@@ -244,65 +227,98 @@ class DuckRaceGame extends FlameGame {
     _updateLabelPositions();
   }
 
-  /// Reassign ducks based on top players.
+  /// Updates duck assignments for the current top 3.
+  /// This method maintains persistent assignments:
+  /// - If a player is already assigned, keep that assignment.
+  /// - Assign a duck index (0,1,2) for any new top-3 player.
+  /// - Remove assignments for players no longer in top-3.
   void updateDucks(List<Map<String, dynamic>> topPlayers) {
-    if (topPlayers.isEmpty) {
-      duck1PlayerId = duck2PlayerId = duck3PlayerId = null;
-      duck1Label?.text = '';
-      duck2Label?.text = '';
-      duck3Label?.text = '';
-      _updateLabelPositions();
-      return;
+    // Create a set of the current top player IDs (max 3).
+    Set<String> newTopIds = {};
+    for (int i = 0; i < topPlayers.length && i < 3; i++) {
+      newTopIds.add(topPlayers[i]['id'] as String);
     }
 
-    if (topPlayers.isNotEmpty) {
-      duck1PlayerId = topPlayers[0]['id'];
-      duck1Label?.text = topPlayers[0]['name'] ?? '';
-    } else {
-      duck1PlayerId = null;
-      duck1Label?.text = '';
-    }
+    // Remove assignments for players no longer in top-3.
+    currentDuckAssignments.removeWhere((playerId, duckIndex) => !newTopIds.contains(playerId));
 
-    if (topPlayers.length > 1) {
-      duck2PlayerId = topPlayers[1]['id'];
-      duck2Label?.text = topPlayers[1]['name'] ?? '';
-    } else {
-      duck2PlayerId = null;
-      duck2Label?.text = '';
+    // For each new top-3 player, assign a duck index if not already assigned.
+    for (int i = 0; i < topPlayers.length && i < 3; i++) {
+      final p = topPlayers[i];
+      final playerId = p['id'] as String;
+      final playerName = p['name'] ?? '';
+      if (!currentDuckAssignments.containsKey(playerId)) {
+        // Find the lowest available duck index.
+        List<int> used = currentDuckAssignments.values.toList();
+        int? freeIndex;
+        for (int j = 0; j < 3; j++) {
+          if (!used.contains(j)) {
+            freeIndex = j;
+            break;
+          }
+        }
+        if (freeIndex != null) {
+          currentDuckAssignments[playerId] = freeIndex;
+        }
+      }
+      // Update the duck label and mapping based on the assigned duck index.
+      switch (currentDuckAssignments[playerId]) {
+        case 0:
+          duck1Label?.text = playerName;
+          playerDuckMap[playerId] = duck1!;
+          playerLabelMap[playerId] = duck1Label!;
+          break;
+        case 1:
+          duck2Label?.text = playerName;
+          playerDuckMap[playerId] = duck2!;
+          playerLabelMap[playerId] = duck2Label!;
+          break;
+        case 2:
+          duck3Label?.text = playerName;
+          playerDuckMap[playerId] = duck3!;
+          playerLabelMap[playerId] = duck3Label!;
+          break;
+      }
     }
-
-    if (topPlayers.length > 2) {
-      duck3PlayerId = topPlayers[2]['id'];
-      duck3Label?.text = topPlayers[2]['name'] ?? '';
-    } else {
-      duck3PlayerId = null;
-      duck3Label?.text = '';
-    }
-
     _updateLabelPositions();
   }
 
-  void _updateLabelPositions() {
-    if (duck1 != null && duck1Label != null) {
-      duck1Label!.position = duck1!.position + Vector2(duck1!.size.x / 2, -2);
-    }
-    if (duck2 != null && duck2Label != null) {
-      duck2Label!.position = duck2!.position + Vector2(duck2!.size.x / 2, -2);
-    }
-    if (duck3 != null && duck3Label != null) {
-      duck3Label!.position = duck3!.position + Vector2(duck3!.size.x / 2, -2);
-    }
-  }
-
-  /// Move the duck assigned to that player's current rank.
+  /// Moves the duck for a given player.
   void moveDuckForPlayer(String playerId) {
-    if (playerId == duck1PlayerId && duck1 != null) {
-      duck1!.position.x += 25;
-    } else if (playerId == duck2PlayerId && duck2 != null) {
-      duck2!.position.x += 25;
-    } else if (playerId == duck3PlayerId && duck3 != null) {
-      duck3!.position.x += 25;
+    print('moveDuckForPlayer($playerId)');
+    print('playerDuckMap keys: ${playerDuckMap.keys.toList()}');
+
+    final duck = playerDuckMap[playerId];
+    if (duck != null) {
+      // Calculate the target position: move 25 pixels to the right.
+      final targetPosition = Vector2(duck.position.x + 25, duck.position.y);
+
+      // Remove any existing MoveEffects to avoid stacking.
+      duck.children.whereType<MoveEffect>().forEach((effect) {
+        effect.removeFromParent();
+      });
+
+      // Add a smooth move effect with a half-second duration.
+      duck.add(
+        MoveEffect.to(
+          targetPosition,
+          EffectController(duration: 0.5, curve: Curves.easeInOut),
+        ),
+      );
+      print('Moved duck for $playerId');
+    } else {
+      print('No duck found for $playerId');
     }
     _updateLabelPositions();
+  }
+
+  /// Updates label positions to remain above their ducks.
+  void _updateLabelPositions() {
+    playerDuckMap.forEach((playerId, duckComponent) {
+      final label = playerLabelMap[playerId];
+      if (label != null) {
+        label.position = duckComponent.position + Vector2(duckComponent.size.x / 2, -2);
+      }
+    });
   }
 }

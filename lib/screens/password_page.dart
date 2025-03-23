@@ -1,12 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PasswordPage extends StatefulWidget {
+// Provider to manage loading state for the password page.
+final passwordLoadingProvider = StateProvider<bool>((ref) => false);
+
+class PasswordPage extends ConsumerStatefulWidget {
   @override
-  _PasswordPageState createState() => _PasswordPageState();
+  ConsumerState<PasswordPage> createState() => _PasswordPageState();
 }
 
-class _PasswordPageState extends State<PasswordPage> {
+class _PasswordPageState extends ConsumerState<PasswordPage> {
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -14,9 +18,7 @@ class _PasswordPageState extends State<PasswordPage> {
 
   final User? user = FirebaseAuth.instance.currentUser;
 
-  bool _isLoading = false;
-
-  /// ✅ Re-authenticate user before changing password
+  /// Re-authenticate user before changing password.
   Future<bool> _reAuthenticate(String currentPassword) async {
     try {
       final cred = EmailAuthProvider.credential(
@@ -27,14 +29,17 @@ class _PasswordPageState extends State<PasswordPage> {
       return true;
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Re-authentication failed. Check current password."), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text("Re-authentication failed. Check current password."),
+          backgroundColor: Colors.red,
+        ),
       );
       return false;
     }
   }
 
-  /// ✅ Update password function
-  void _changePassword() async {
+  /// Update password function.
+  Future<void> _changePassword() async {
     String currentPassword = _currentPasswordController.text.trim();
     String newPassword = _newPasswordController.text.trim();
     String confirmPassword = _confirmPasswordController.text.trim();
@@ -42,64 +47,82 @@ class _PasswordPageState extends State<PasswordPage> {
 
     if (currentPassword.isEmpty || newPassword.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please fill in all fields."), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text("Please fill in all fields."),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
 
     if (newPassword != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("New passwords do not match."), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text("New passwords do not match."),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
 
     if (newPassword.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Password must be at least 6 characters."), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text("Password must be at least 6 characters."),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    // Set loading state to true.
+    ref.read(passwordLoadingProvider.notifier).state = true;
 
     try {
       bool isReAuthenticated = await _reAuthenticate(currentPassword);
       if (!isReAuthenticated) {
-        setState(() => _isLoading = false);
+        ref.read(passwordLoadingProvider.notifier).state = false;
         return;
       }
 
-      /// ✅ (Optional) Verify OTP if integrated with external services
+      // (Optional) Verify OTP if integrated with external services.
       if (otpCode.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Enter the OTP Code (if required)."), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text("Enter the OTP Code (if required)."),
+            backgroundColor: Colors.red,
+          ),
         );
-        setState(() => _isLoading = false);
+        ref.read(passwordLoadingProvider.notifier).state = false;
         return;
       }
 
-      /// ✅ Update the password
+      // Update the password.
       await user!.updatePassword(newPassword);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Password Updated Successfully."), backgroundColor: Colors.green),
+        SnackBar(
+          content: Text("Password Updated Successfully."),
+          backgroundColor: Colors.green,
+        ),
       );
 
-      Navigator.pop(context); // Return to previous screen after success
+      Navigator.pop(context); // Return to previous screen after success.
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text("Error: $e"),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
-      setState(() => _isLoading = false);
+      ref.read(passwordLoadingProvider.notifier).state = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(passwordLoadingProvider);
     return Scaffold(
       backgroundColor: Color(0xFF1A3A5F),
       body: SafeArea(
@@ -115,10 +138,11 @@ class _PasswordPageState extends State<PasswordPage> {
               ),
             ),
             SizedBox(height: 20),
-            Text("Password", style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-
+            Text(
+              "Password",
+              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 20),
-
             /// Form Fields
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
@@ -128,10 +152,8 @@ class _PasswordPageState extends State<PasswordPage> {
                   _buildTextField("New Password", _newPasswordController, obscureText: true),
                   _buildTextField("Confirm Password", _confirmPasswordController, obscureText: true),
                   _buildTextField("OTP CODE (if required)", _otpController, obscureText: false),
-
                   SizedBox(height: 20),
-
-                  _isLoading
+                  isLoading
                       ? CircularProgressIndicator(color: Colors.orange)
                       : ElevatedButton(
                           onPressed: _changePassword,
@@ -147,7 +169,7 @@ class _PasswordPageState extends State<PasswordPage> {
     );
   }
 
-  /// ✅ Reusable TextField Builder
+  /// Reusable TextField Builder.
   Widget _buildTextField(String label, TextEditingController controller, {bool obscureText = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),

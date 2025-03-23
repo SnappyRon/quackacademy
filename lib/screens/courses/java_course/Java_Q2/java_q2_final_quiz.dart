@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:quackacademy/screens/courses/java_course/java_course_page.dart'; // ✅ Import the Java Course Page
+import 'package:quackacademy/screens/courses/java_course/java_course_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class JavaQ2FinalQuizPage extends StatefulWidget {
   @override
@@ -65,36 +67,47 @@ class _JavaQ2FinalQuizPageState extends State<JavaQ2FinalQuizPage> {
       ],
       "correct": 1,
     },
-  
   ];
 
-  /// Only change: put this INSIDE the State class
-  Future<void> _markJavaQ1Completed() async {
+  /// Mark the lesson as completed.
+  Future<void> _markJavaQ2Completed() async {
+    // Mark completion locally.
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("java_q1_completed", true);
+    await prefs.setBool("java_q2_completed", true);
+
+    // Update Firestore to increment the completedLessons field by 1.
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({
+        "completedLessons": FieldValue.increment(1),
+      });
+    }
   }
 
-  // Handle answer selection
+  // Handle answer selection.
   void _selectAnswer(int selectedIndex) {
-    if (_answered) return; // Prevent multiple selections
+    if (_answered) return; // Prevent multiple selections.
 
     setState(() {
       _selectedAnswerIndex = selectedIndex;
       _answered = true;
 
       if (selectedIndex == _questions[_currentQuestionIndex]["correct"]) {
-        _score++; // Increase score for correct answers
+        _score++; // Increase score for correct answers.
       }
 
-      // Wait 1 second before moving to next question
+      // Wait 1 second before moving to the next question.
       Future.delayed(Duration(seconds: 1), () {
         setState(() {
           if (_currentQuestionIndex < _questions.length - 1) {
-            _currentQuestionIndex++; // Move to next question
-            _selectedAnswerIndex = -1; // Reset selection
-            _answered = false;        // Allow new selection
+            _currentQuestionIndex++; // Move to the next question.
+            _selectedAnswerIndex = -1; // Reset selection.
+            _answered = false;         // Allow new selection.
           } else {
-            // Last question answered -> Show results
+            // Last question answered -> Show results.
             _showResultsDialog();
           }
         });
@@ -102,10 +115,10 @@ class _JavaQ2FinalQuizPageState extends State<JavaQ2FinalQuizPage> {
     });
   }
 
-  // Show final results & redirect to Java Course Page
+  // Show final results & redirect to the Java Course Page.
   void _showResultsDialog() {
-    // Mark Q1 as completed:
-    _markJavaQ1Completed();
+    // Mark this lesson as completed and update progress.
+    _markJavaQ2Completed();
 
     showDialog(
       context: context,
@@ -138,20 +151,20 @@ class _JavaQ2FinalQuizPageState extends State<JavaQ2FinalQuizPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Score Display
+            // Score Display.
             Padding(
               padding: EdgeInsets.all(16),
               child: Text(
                 "Score: $_score/${_questions.length}",
                 style: TextStyle(
-                  fontSize: 18, 
-                  fontWeight: FontWeight.bold, 
-                  color: Colors.white
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
             ),
 
-            // Animated Progress Bar
+            // Animated Progress Bar (quiz progress).
             Padding(
               padding: EdgeInsets.all(16),
               child: Stack(
@@ -205,41 +218,41 @@ class _JavaQ2FinalQuizPageState extends State<JavaQ2FinalQuizPage> {
     );
   }
 
-  // Title Widget
+  // Title Widget.
   Widget _title(String text) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16),
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 24, 
-          fontWeight: FontWeight.bold, 
-          color: Colors.white
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
         ),
       ),
     );
   }
 
-  // Question Text Widget
+  // Question Text Widget.
   Widget _question(String question) {
     return Text(
       question,
       style: TextStyle(
-        fontSize: 18, 
-        fontWeight: FontWeight.bold, 
-        color: Colors.white
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
       ),
     );
   }
 
-  // Answer Option Widget (with feedback)
+  // Answer Option Widget (with feedback).
   Widget _answerOption({required String text, required int index}) {
-    Color optionColor = Colors.white12; // Default color
+    Color optionColor = Colors.white12; // Default color.
     if (_answered) {
       if (index == _questions[_currentQuestionIndex]["correct"]) {
-        optionColor = Colors.green; // Correct answer
+        optionColor = Colors.green; // Correct answer.
       } else if (index == _selectedAnswerIndex) {
-        optionColor = Colors.red; // Incorrect answer
+        optionColor = Colors.red; // Incorrect answer.
       }
     }
 

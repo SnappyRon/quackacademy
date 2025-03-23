@@ -5,15 +5,15 @@ import 'package:quackacademy/screens/courses/java_course/Java_Q2/java_all_lesson
 import 'package:quackacademy/screens/courses/java_course/Java_Q3/java_pretest_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Import the MainNavigator and pages for bottom nav navigation.
-
 class JavaCourseSelectionPage extends StatefulWidget {
   @override
-  _JavaCourseSelectionPageState createState() => _JavaCourseSelectionPageState();
+  _JavaCourseSelectionPageState createState() =>
+      _JavaCourseSelectionPageState();
 }
 
 class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
   bool _isJavaQ1Completed = false;
+  bool _isJavaQ2Completed = false;
   bool _isJavaQ3Completed = false;
 
   // Set _currentIndex to 1 for the "Learn" tab
@@ -27,8 +27,10 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
 
   Future<void> _loadLessonCompletion() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _isJavaQ1Completed = prefs.getBool("java_q1_completed") ?? false;
+      _isJavaQ2Completed = prefs.getBool("java_q2_completed") ?? false;
       _isJavaQ3Completed = prefs.getBool("java_q3_completed") ?? false;
     });
   }
@@ -47,11 +49,11 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
                 alignment: Alignment.topLeft,
                 child: GestureDetector(
                   onTap: () {
-                    // Pop back to the previous page
                     Navigator.pop(context);
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
                       color: Colors.orange,
                       borderRadius: BorderRadius.circular(8),
@@ -59,8 +61,8 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
                     child: Text(
                       "Back",
                       style: TextStyle(
-                        color: Colors.white, 
-                        fontWeight: FontWeight.bold, 
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
@@ -68,13 +70,14 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
                 ),
               ),
             ),
-
             Text(
               "Select a Java Lesson:",
-              style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
-
             // Java Quarter Cards
             _quarterCard(
               title: "Java Quarter 1",
@@ -84,8 +87,10 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
               onTap: () async {
                 await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => JavaQ1PretestPage()),
+                  MaterialPageRoute(
+                      builder: (context) => JavaQ1PretestPage()),
                 );
+                if (!mounted) return;
                 _loadLessonCompletion();
               },
             ),
@@ -93,12 +98,13 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
               title: "Java Quarter 2",
               description: "Apply Basics of Java Language",
               iconPath: "assets/images/javaicon2.png",
-              isCompleted: _isJavaQ3Completed,
+              isCompleted: _isJavaQ2Completed,
               onTap: () async {
                 await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => JavaAllLessonsPage2()),
+                  MaterialPageRoute(builder: (context) => JavaPreTestPage()),
                 );
+                if (!mounted) return;
                 _loadLessonCompletion();
               },
             ),
@@ -112,13 +118,13 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
                   context,
                   MaterialPageRoute(builder: (context) => JavaPreTestPage()),
                 );
+                if (!mounted) return;
                 _loadLessonCompletion();
               },
             ),
           ],
         ),
       ),
-      // Exact copy of your MainNavigator bottom nav design:
       bottomNavigationBar: ClipRRect(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
@@ -129,7 +135,8 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
           backgroundColor: Colors.white,
           selectedItemColor: Color(0xFF1A3A5F),
           unselectedItemColor: Colors.black54,
-          selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          selectedLabelStyle:
+              TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
           unselectedLabelStyle: TextStyle(fontSize: 12),
           type: BottomNavigationBarType.fixed,
           onTap: (index) {
@@ -138,25 +145,33 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
               case 0:
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => MainNavigator(initialIndex: 0)),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          MainNavigator(gameCode: 'defaultGameCode')),
                 );
                 break;
               case 1:
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => MainNavigator(initialIndex: 1)),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          MainNavigator(gameCode: 'defaultGameCode')),
                 );
                 break;
               case 2:
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => MainNavigator(initialIndex: 2)),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          MainNavigator(gameCode: 'defaultGameCode')),
                 );
                 break;
               case 3:
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => MainNavigator(initialIndex: 3)),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          MainNavigator(gameCode: 'defaultGameCode')),
                 );
                 break;
             }
@@ -167,7 +182,9 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
                 'assets/images/Home.png',
                 width: 24,
                 height: 24,
-                color: _currentIndex == 0 ? Color(0xFF1A3A5F) : Colors.black54,
+                color: _currentIndex == 0
+                    ? Color(0xFF1A3A5F)
+                    : Colors.black54,
               ),
               label: "Home",
             ),
@@ -176,7 +193,9 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
                 'assets/images/Courses.png',
                 width: 24,
                 height: 24,
-                color: _currentIndex == 1 ? Color(0xFF1A3A5F) : Colors.black54,
+                color: _currentIndex == 1
+                    ? Color(0xFF1A3A5F)
+                    : Colors.black54,
               ),
               label: "Learn",
             ),
@@ -185,7 +204,9 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
                 'assets/images/Leaderboard.png',
                 width: 24,
                 height: 24,
-                color: _currentIndex == 2 ? Color(0xFF1A3A5F) : Colors.black54,
+                color: _currentIndex == 2
+                    ? Color(0xFF1A3A5F)
+                    : Colors.black54,
               ),
               label: "Leaderboard",
             ),
@@ -194,7 +215,9 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
                 'assets/images/Profile.png',
                 width: 24,
                 height: 24,
-                color: _currentIndex == 3 ? Color(0xFF1A3A5F) : Colors.black54,
+                color: _currentIndex == 3
+                    ? Color(0xFF1A3A5F)
+                    : Colors.black54,
               ),
               label: "Profile",
             ),
@@ -240,17 +263,23 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                     SizedBox(height: 5),
-                    Text(description, style: TextStyle(fontSize: 14, color: Colors.white70)),
+                    Text(description,
+                        style: TextStyle(
+                            fontSize: 14, color: Colors.white70)),
                   ],
                 ),
               ],
             ),
             if (isCompleted)
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding:
+                    EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: Colors.green,
                   borderRadius: BorderRadius.circular(5),
@@ -258,8 +287,9 @@ class _JavaCourseSelectionPageState extends State<JavaCourseSelectionPage> {
                 child: Text(
                   "Completed",
                   style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14,
-                  ),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14),
                 ),
               ),
           ],

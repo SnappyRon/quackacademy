@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:quackacademy/screens/courses/java_course/java_course_page.dart'; // ✅ Import the Java Course Page
+import 'package:quackacademy/screens/courses/java_course/java_course_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class JavaQ1FinalQuizPage extends StatefulWidget {
   @override
@@ -117,10 +119,22 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
     },
   ];
 
-  /// Only change: put this INSIDE the State class
+  /// Updates local preferences and Firestore to mark the lesson as completed.
   Future<void> _markJavaQ1Completed() async {
+    // Mark completion locally
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool("java_q1_completed", true);
+
+    // Update Firestore to increment completedLessons by 1
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({
+            "completedLessons": FieldValue.increment(1),
+          });
+    }
   }
 
   // Handle answer selection
@@ -153,7 +167,7 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
 
   // Show final results & redirect to Java Course Page
   void _showResultsDialog() {
-    // Mark Q1 as completed:
+    // Mark Q1 as completed and update the overall progress in Firestore
     _markJavaQ1Completed();
 
     showDialog(
@@ -200,7 +214,7 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
               ),
             ),
 
-            // Animated Progress Bar
+            // Animated Progress Bar (quiz progress)
             Padding(
               padding: EdgeInsets.all(16),
               child: Stack(

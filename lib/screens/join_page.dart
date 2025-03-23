@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'game_room_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class JoinPage extends StatefulWidget {
+/// Provider to manage loading state when joining a session.
+final joinSessionLoadingProvider = StateProvider<bool>((ref) => false);
+
+class JoinPage extends ConsumerStatefulWidget {
   @override
-  _JoinPageState createState() => _JoinPageState();
+  ConsumerState<JoinPage> createState() => _JoinPageState();
 }
 
-class _JoinPageState extends State<JoinPage> {
+class _JoinPageState extends ConsumerState<JoinPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _codeController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
 
-  /// ✅ Function to Join Session
+  /// Function to join session.
   void _joinSession() async {
+    // Set loading state to true.
+    ref.read(joinSessionLoadingProvider.notifier).state = true;
+
     String code = _codeController.text.trim().toUpperCase();
     String name = _nameController.text.trim();
 
@@ -21,11 +28,12 @@ class _JoinPageState extends State<JoinPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please fill in all fields"), backgroundColor: Colors.red),
       );
+      ref.read(joinSessionLoadingProvider.notifier).state = false;
       return;
     }
 
     try {
-      // ✅ Check if Room Exists
+      // Check if Room Exists.
       DocumentSnapshot roomSnapshot = await _firestore.collection('rooms').doc(code).get();
 
       if (!roomSnapshot.exists) {
@@ -35,7 +43,7 @@ class _JoinPageState extends State<JoinPage> {
         return;
       }
 
-      // ✅ Check for Existing Player with the Same Name
+      // Check for Existing Player with the Same Name.
       DocumentSnapshot playerSnapshot = await _firestore
           .collection('rooms')
           .doc(code)
@@ -50,24 +58,25 @@ class _JoinPageState extends State<JoinPage> {
         return;
       }
 
-      // ✅ Add Player to Room
+      // Add Player to Room.
       await _firestore.collection('rooms').doc(code).collection('players').doc(name).set({
         'name': name,
-        'ready': false, // Default state as not ready
+        'ready': false, // Default state as not ready.
       });
 
-      // ✅ Show Success and Redirect to Waiting Room
+      // Show success message.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Joined session successfully!"), backgroundColor: Colors.green),
       );
 
+      // Navigate to GameRoomPage with the joined player's name.
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => GameRoomPage(
             gameCode: code,
             isTeacher: false,
-            playerName: name, // ✅ Pass player name to Game Room
+            playerName: name, // Pass player name to Game Room.
           ),
         ),
       );
@@ -75,11 +84,14 @@ class _JoinPageState extends State<JoinPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error joining session: $e"), backgroundColor: Colors.red),
       );
+    } finally {
+      ref.read(joinSessionLoadingProvider.notifier).state = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(joinSessionLoadingProvider);
     return Scaffold(
       backgroundColor: Color(0xFF1A3A5F),
       body: SafeArea(
@@ -90,11 +102,11 @@ class _JoinPageState extends State<JoinPage> {
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
-                    /// Duck Logo
+                    // Duck Logo.
                     Image.asset('assets/images/duck_logo.png', height: 100),
                     SizedBox(height: 20),
 
-                    /// Heading
+                    // Heading.
                     Text(
                       "GET READY TO JOIN!\nQUACKACADEMY",
                       textAlign: TextAlign.center,
@@ -107,7 +119,7 @@ class _JoinPageState extends State<JoinPage> {
                     ),
                     SizedBox(height: 20),
 
-                    /// Input Form
+                    // Input Form.
                     Container(
                       padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -124,7 +136,7 @@ class _JoinPageState extends State<JoinPage> {
                     ),
                     SizedBox(height: 20),
 
-                    /// Join Button
+                    // Join Button.
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -136,18 +148,24 @@ class _JoinPageState extends State<JoinPage> {
                           ),
                           elevation: 4,
                         ),
-                        onPressed: _joinSession,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Join Now",
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                            SizedBox(width: 5),
-                            Icon(Icons.arrow_forward, color: Colors.white),
-                          ],
-                        ),
+                        onPressed: isLoading ? null : _joinSession,
+                        child: isLoading
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Join Now",
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                                  ),
+                                  SizedBox(width: 5),
+                                  Icon(Icons.arrow_forward, color: Colors.white),
+                                ],
+                              ),
                       ),
                     ),
                   ],
@@ -155,7 +173,7 @@ class _JoinPageState extends State<JoinPage> {
               ),
             ),
 
-            /// ✅ Back Button (Top-Left)
+            // Back Button (Top-Left).
             Positioned(
               top: 10,
               left: 10,
@@ -180,7 +198,7 @@ class _JoinPageState extends State<JoinPage> {
     );
   }
 
-  /// Custom TextField Widget
+  /// Custom TextField Widget.
   Widget _buildCustomTextField(String label, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

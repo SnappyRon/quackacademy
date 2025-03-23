@@ -1,76 +1,88 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+// Import your Java course page here:
+import 'package:quackacademy/screens/courses/java_course/java_course_page.dart';
 import 'package:quackacademy/screens/join_page.dart';
 import 'package:quackacademy/screens/create_session_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  /// Store the user role
-  String _role = "";
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchUserRole();
+/// Riverpod provider that listens to the current user's Firestore document
+final userDataProvider = StreamProvider<Map<String, dynamic>>((ref) {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .snapshots()
+        .map((doc) => doc.data() ?? {});
+  } else {
+    return Stream.value({});
   }
+});
 
-  /// Fetch user role from Firestore
-  Future<void> _fetchUserRole() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      DocumentSnapshot doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-      if (doc.exists && doc['role'] != null) {
-        setState(() {
-          _role = doc['role'];
-        });
-      }
-    }
-  }
-
+class HomePage extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    // Just show the home content (no extra bottom nav here).
-    return Scaffold(
-      backgroundColor: Color(0xFF1A3A5F),
-      body: HomeContent(role: _role),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userDataAsync = ref.watch(userDataProvider);
+    return userDataAsync.when(
+      data: (data) {
+        final String role = data['role'] ?? "";
+        final int completedLessons = data['completedLessons'] ?? 0;
+        return Scaffold(
+          backgroundColor: const Color(0xFF1A3A5F),
+          body: HomeContent(
+            role: role,
+            completedLessons: completedLessons,
+          ),
+        );
+      },
+      loading: () => Scaffold(
+        backgroundColor: const Color(0xFF1A3A5F),
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => Scaffold(
+        backgroundColor: const Color(0xFF1A3A5F),
+        body: Center(child: Text("Error loading data")),
+      ),
     );
   }
 }
 
-/// A separate widget that shows the main home UI, with the user role passed in.
+/// A separate widget that shows the main home UI, with the user role
+/// and completedLessons passed in.
 class HomeContent extends StatelessWidget {
   final String role;
-  const HomeContent({Key? key, required this.role}) : super(key: key);
+  final int completedLessons;
+
+  const HomeContent({
+    Key? key,
+    required this.role,
+    required this.completedLessons,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              SizedBox(height: 20),
-              _buildProgressSection(),
-              SizedBox(height: 20),
-              _buildQuestSection(),
-              SizedBox(height: 20),
-              _buildCoursesSection(),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
+              _buildProgressSection(context),
+              const SizedBox(height: 20),
+              _buildQuestSection(context),
+              const SizedBox(height: 20),
+              _buildCoursesSection(context),
+              const SizedBox(height: 20),
               _buildAchievementsSection(),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildSessionButtons(context),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
             ],
           ),
         ),
@@ -85,7 +97,7 @@ class HomeContent extends StatelessWidget {
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: const [
             Text(
               "Welcome back,",
               style: TextStyle(
@@ -109,15 +121,21 @@ class HomeContent extends StatelessWidget {
             ),
           ],
         ),
-        Icon(Icons.notifications, color: Colors.white, size: 28),
+        const Icon(Icons.notifications, color: Colors.white, size: 28),
       ],
     );
   }
 
-  /// Learning Progress Section
-  Widget _buildProgressSection() {
+  /// Dynamic Learning Progress Section
+  Widget _buildProgressSection(BuildContext context) {
+    const int totalLessons = 3;
+    double progressRatio = (completedLessons / totalLessons).clamp(0.0, 1.0);
+    final int progressPercent = (progressRatio * 100).round();
+    final Color barColor = (progressPercent >= 100) ? Colors.green : Colors.orange;
+
     return Container(
-      padding: EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -125,39 +143,47 @@ class HomeContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             "Learning Progress",
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
           ),
-          SizedBox(height: 8),
-          Stack(
-            children: [
-              Container(
-                height: 8,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              // Example static bar
-              Container(
-                height: 8,
-                width: 200,
-                decoration: BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ],
+          const SizedBox(height: 8),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final double maxBarWidth = constraints.maxWidth;
+              return Stack(
+                children: [
+                  Container(
+                    height: 8,
+                    width: maxBarWidth,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    height: 8,
+                    width: maxBarWidth * progressRatio,
+                    decoration: BoxDecoration(
+                      color: barColor,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Align(
             alignment: Alignment.centerRight,
-            child: Text("65%", style: TextStyle(color: Colors.black54)),
+            child: Text(
+              "$progressPercent%",
+              style: const TextStyle(color: Colors.black54),
+            ),
           ),
         ],
       ),
@@ -165,9 +191,10 @@ class HomeContent extends StatelessWidget {
   }
 
   /// Current Quest Section
-  Widget _buildQuestSection() {
+  Widget _buildQuestSection(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -175,22 +202,22 @@ class HomeContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             "Current Quest",
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
           ),
-          SizedBox(height: 5),
-          Text(
+          const SizedBox(height: 5),
+          const Text(
             "Foundations of Java",
             style: TextStyle(
               color: Colors.black87,
               fontSize: 14,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -201,13 +228,22 @@ class HomeContent extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                onPressed: () {},
-                child: Text(
+                onPressed: () {
+                  // Check if the current context is still mounted before navigating.
+                  if (!(context as Element).mounted) return;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => JavaCourseSelectionPage(),
+                    ),
+                  );
+                },
+                child: const Text(
                   "Get Started",
                   style: TextStyle(color: Colors.white),
                 ),
               ),
-              Text(
+              const Text(
                 "Deadline!",
                 style: TextStyle(
                   color: Colors.red,
@@ -222,78 +258,105 @@ class HomeContent extends StatelessWidget {
   }
 
   /// Courses Section
-  Widget _buildCoursesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Courses",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Colors.white,
+  Widget _buildCoursesSection(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white, 
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Courses",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Colors.black,
+            ),
           ),
-        ),
-        SizedBox(height: 10),
-        // If you want a scrolling row:
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              SizedBox(width: 16),
-              _buildCourseIcon('assets/images/java.png'),
-            ],
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                const SizedBox(width: 16),
+                _buildCourseIcon(context, 'assets/images/java.png'),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildCourseIcon(String assetPath) {
-    return Image.asset(
-      assetPath,
-      width: 50,
-      errorBuilder: (context, error, stackTrace) =>
-          Icon(Icons.error, color: Colors.red, size: 50),
+  /// Clickable Java icon that navigates to JavaCourseSelectionPage
+  Widget _buildCourseIcon(BuildContext context, String assetPath) {
+    return GestureDetector(
+      onTap: () {
+        if (!(context as Element).mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => JavaCourseSelectionPage(),
+          ),
+        );
+      },
+      child: Image.asset(
+        assetPath,
+        width: 50,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.error, color: Colors.red, size: 50),
+      ),
     );
   }
 
   /// Achievements Section
   Widget _buildAchievementsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Achievements",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Colors.white,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white, 
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Achievements",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Colors.black,
+            ),
           ),
-        ),
-        SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildAchievementCard("Top Novice", Colors.brown[300]!),
-            _buildAchievementCard("Quiz Star", Colors.blueGrey[300]!),
-            _buildAchievementCard("Perfect Quack", Colors.yellow[400]!),
-          ],
-        ),
-      ],
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildAchievementCard("Top Novice", Colors.brown[300]!),
+              _buildAchievementCard("Quiz Star", Colors.blueGrey[300]!),
+              _buildAchievementCard("Perfect Quack", Colors.yellow[400]!),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildAchievementCard(String title, Color color) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         title,
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.black,
           fontWeight: FontWeight.bold,
         ),
@@ -303,12 +366,10 @@ class HomeContent extends StatelessWidget {
 
   /// Session Buttons (Create/Join)
   Widget _buildSessionButtons(BuildContext context) {
-    // We already have 'role' passed into this widget
     final isTeacher = (role == "teacher");
 
     return Row(
       children: [
-        // Only show "Create session" if user role == "teacher"
         if (isTeacher)
           Expanded(
             child: _buildSessionCard(
@@ -318,8 +379,7 @@ class HomeContent extends StatelessWidget {
               context,
             ),
           ),
-        if (isTeacher) SizedBox(width: 10),
-        // Always show "Join session"
+        if (isTeacher) const SizedBox(width: 10),
         Expanded(
           child: _buildSessionCard(
             "Join session here",
@@ -339,7 +399,7 @@ class HomeContent extends StatelessWidget {
     BuildContext context,
   ) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(10),
@@ -349,9 +409,9 @@ class HomeContent extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(color: Colors.white, fontSize: 14),
+            style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
@@ -360,6 +420,7 @@ class HomeContent extends StatelessWidget {
               ),
             ),
             onPressed: () {
+              if (!(context as Element).mounted) return;
               if (buttonText.contains("Join")) {
                 Navigator.push(
                   context,

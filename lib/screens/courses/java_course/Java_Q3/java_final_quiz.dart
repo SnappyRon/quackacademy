@@ -1,14 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:quackacademy/screens/courses/java_course/java_course_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class JavaFinalQuizPage extends StatefulWidget {
   @override
   _JavaFinalQuizPageState createState() => _JavaFinalQuizPageState();
 }
+
+// Update the completion function to include Firestore update.
 Future<void> _markJavaQ3Completed() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setBool("java_q3_completed", true);
+
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .update({
+      "completedLessons": FieldValue.increment(1),
+    });
+  }
 }
 
 class _JavaFinalQuizPageState extends State<JavaFinalQuizPage> {
@@ -47,43 +61,43 @@ class _JavaFinalQuizPageState extends State<JavaFinalQuizPage> {
   final TextEditingController _wrapUpAnswer2 = TextEditingController();
 
   void _submitQuiz() {
-  int correctAnswers = 0;
-  _questions.asMap().forEach((index, questionData) {
-    if (_selectedAnswers[index] == questionData["answer"]) {
-      correctAnswers++;
-    }
-  });
+    int correctAnswers = 0;
+    _questions.asMap().forEach((index, questionData) {
+      if (_selectedAnswers[index] == questionData["answer"]) {
+        correctAnswers++;
+      }
+    });
 
-  // Mark the Q3 as completed
-  _markJavaQ3Completed();
+    // Mark the Q3 lesson as completed (update SharedPreferences and Firestore)
+    _markJavaQ3Completed();
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text("Quiz Results"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text("You got $correctAnswers out of ${_questions.length} correct."),
-            SizedBox(height: 10),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => JavaCourseSelectionPage()),
-              );
-            },
-            child: Text("Finish Course"),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Quiz Results"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("You got $correctAnswers out of ${_questions.length} correct."),
+              SizedBox(height: 10),
+            ],
           ),
-        ],
-      );
-    },
-  );
-}
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => JavaCourseSelectionPage()),
+                );
+              },
+              child: Text("Finish Course"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

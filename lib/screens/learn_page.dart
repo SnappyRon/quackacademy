@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'courses/java_course/java_course_page.dart';
 
-class LearnPage extends StatefulWidget {
+class LearnPage extends ConsumerWidget {
   @override
-  _LearnPageState createState() => _LearnPageState();
-}
-
-class _LearnPageState extends State<LearnPage> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: Color(0xFF1A3A5F),
+      backgroundColor: const Color(0xFF1A3A5F),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Expanded(
                 child: ListView(
                   children: [
@@ -31,12 +27,11 @@ class _LearnPageState extends State<LearnPage> {
                       false,
                     ),
                     // Add course card
-                    // (pass an empty image path here; we'll show an icon instead)
                     _buildCourseCard(
                       context,
                       "Add course",
                       "Add a new course",
-                      '', // not used, since we'll display an icon instead
+                      '', // Not used, since we'll display an icon instead
                       false,
                     ),
                   ],
@@ -56,7 +51,7 @@ class _LearnPageState extends State<LearnPage> {
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: const [
             Text(
               "Courses",
               style: TextStyle(
@@ -71,7 +66,7 @@ class _LearnPageState extends State<LearnPage> {
             ),
           ],
         ),
-        Icon(Icons.school, color: Colors.orange, size: 28),
+        const Icon(Icons.school, color: Colors.orange, size: 28),
       ],
     );
   }
@@ -86,17 +81,17 @@ class _LearnPageState extends State<LearnPage> {
   ) {
     return Card(
       color: Colors.white,
-      margin: EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         // Show the Java image if it's "Java", otherwise show a plus icon
         leading: (title == "Add course")
-            ? Icon(Icons.add, size: 40, color: Colors.orange)
+            ? const Icon(Icons.add, size: 40, color: Colors.orange)
             : Image.asset(
                 imagePath,
                 width: 40,
                 height: 40,
-                errorBuilder: (context, error, stackTrace) => Icon(
+                errorBuilder: (context, error, stackTrace) => const Icon(
                   Icons.image_not_supported,
                   color: Colors.red,
                   size: 40,
@@ -104,7 +99,7 @@ class _LearnPageState extends State<LearnPage> {
               ),
         title: Text(
           title,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(subtitle),
         trailing: isLocked
@@ -112,7 +107,7 @@ class _LearnPageState extends State<LearnPage> {
                 'assets/images/Lock.png',
                 width: 30,
                 height: 30,
-                errorBuilder: (context, error, stackTrace) => Icon(
+                errorBuilder: (context, error, stackTrace) => const Icon(
                   Icons.lock,
                   color: Colors.red,
                   size: 30,
@@ -121,15 +116,15 @@ class _LearnPageState extends State<LearnPage> {
             : null,
         onTap: () {
           if (!isLocked) {
-            _handleCardTap(title);
+            _handleCardTap(title, context);
           }
         },
       ),
     );
   }
 
-  /// Handle card taps based on the title
-  void _handleCardTap(String courseName) {
+  /// Handle card taps based on the title.
+  void _handleCardTap(String courseName, BuildContext context) {
     if (courseName == "Java") {
       Navigator.push(
         context,

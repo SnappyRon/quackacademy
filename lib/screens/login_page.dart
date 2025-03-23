@@ -1,29 +1,30 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quackacademy/main_navigator.dart';
 import 'signup_page.dart';
 
-class LoginPage extends StatefulWidget {
+// Riverpod providers for managing login page state.
+final loginObscurePasswordProvider = StateProvider<bool>((ref) => true);
+final loginLoadingProvider = StateProvider<bool>((ref) => false);
+
+class LoginPage extends ConsumerStatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _obscurePassword = true;
-  bool _isLoading = false;
 
-  /// Toggle password visibility
+  /// Toggle password visibility using Riverpod.
   void _togglePasswordVisibility() {
-    setState(() {
-      _obscurePassword = !_obscurePassword;
-    });
+    ref.read(loginObscurePasswordProvider.notifier).update((state) => !state);
   }
 
-  /// Handle user login
-  void _login() async {
+  /// Handle user login and update the loading state via Riverpod.
+  Future<void> _login() async {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
@@ -37,17 +38,16 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    // Set loading state to true.
+    ref.read(loginLoadingProvider.notifier).state = true;
 
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
 
-      // Navigate to MainNavigator to show the bottom navigation bar
+      // Navigate to MainNavigator to show the bottom navigation bar.
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainNavigator()),
+        MaterialPageRoute(builder: (context) => MainNavigator(gameCode: 'defaultGameCode')),
       );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -57,14 +57,17 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      // Set loading state to false.
+      ref.read(loginLoadingProvider.notifier).state = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Watch the providers for current state.
+    final bool isLoading = ref.watch(loginLoadingProvider);
+    final bool obscurePassword = ref.watch(loginObscurePasswordProvider);
+
     return Scaffold(
       backgroundColor: Color(0xFF1A3A5F), // Background color
       body: SafeArea(
@@ -132,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
                       SizedBox(height: 5),
                       TextField(
                         controller: _passwordController,
-                        obscureText: _obscurePassword,
+                        obscureText: obscurePassword,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.white,
@@ -141,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                              obscurePassword ? Icons.visibility : Icons.visibility_off,
                             ),
                             onPressed: _togglePasswordVisibility,
                           ),
@@ -152,7 +155,7 @@ class _LoginPageState extends State<LoginPage> {
                       // Login Button or Loading Spinner
                       SizedBox(
                         width: double.infinity,
-                        child: _isLoading
+                        child: isLoading
                             ? Center(child: CircularProgressIndicator(color: Colors.orange))
                             : ElevatedButton(
                                 style: ElevatedButton.styleFrom(

@@ -156,6 +156,7 @@ class _QuizPageState extends State<QuizPage> {
                             isTeacher: false,
                             currentPlayerId: widget.currentPlayerId,
                             quizId: widget.quizId,
+                            gameCode: widget.gameCode,
                           ),
                         ),
                       );
@@ -396,6 +397,7 @@ class _QuizPageState extends State<QuizPage> {
               isTeacher: false,
               currentPlayerId: widget.currentPlayerId,
               quizId: widget.quizId,
+              gameCode: widget.gameCode,
             ),
           ),
         );
@@ -447,7 +449,8 @@ class _QuizPageState extends State<QuizPage> {
         builder: (context) => LeaderboardPage(
           isTeacher: true,
           currentPlayerId: widget.currentPlayerId,
-          quizId: sessionRef.id, // pass the session id if needed
+          quizId: sessionRef.id,
+          gameCode: widget.gameCode, // pass the session id if needed
         ),
       ),
     );
@@ -820,7 +823,7 @@ class _QuizPageState extends State<QuizPage> {
     bool isCorrect = (answer == correctAnswer);
     Color buttonColor = Colors.orange;
     if (selectedAnswer != null && isChosen) {
-      buttonColor = isCorrect ? Colors.red : Colors.grey;
+      buttonColor = isCorrect ? const Color.fromARGB(255, 11, 203, 107) : const Color.fromARGB(255, 238, 48, 0);
     }
     return ElevatedButton(
       style: ElevatedButton.styleFrom(

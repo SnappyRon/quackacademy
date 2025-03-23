@@ -1,18 +1,22 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_textfield.dart';
 import '../theme.dart';
 import '../services/auth_service.dart';
 import 'login_page.dart';
 
-class SignUpPage extends StatefulWidget {
+// Riverpod provider for loading state during sign up.
+final signUpLoadingProvider = StateProvider<bool>((ref) => false);
+
+class SignUpPage extends ConsumerStatefulWidget {
   @override
-  _SignUpPageState createState() => _SignUpPageState();
+  ConsumerState<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _SignUpPageState extends ConsumerState<SignUpPage> {
   final AuthService authService = AuthService();
 
   final TextEditingController _fullNameController = TextEditingController();
@@ -24,8 +28,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
   /// ✅ New: Role TextField Controller
   final TextEditingController _roleController = TextEditingController();
-
-  bool _isLoading = false;
 
   void _signUp() async {
     String fullName = _fullNameController.text.trim();
@@ -64,9 +66,8 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    // Set loading state to true.
+    ref.read(signUpLoadingProvider.notifier).state = true;
 
     try {
       UserCredential? userCredential = await authService.signUpWithEmailAndPassword(
@@ -114,14 +115,15 @@ class _SignUpPageState extends State<SignUpPage> {
         SnackBar(content: Text("Error: ${e.toString()}"), backgroundColor: Colors.red),
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      // Set loading state to false.
+      ref.read(signUpLoadingProvider.notifier).state = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isLoading = ref.watch(signUpLoadingProvider);
+    
     return Scaffold(
       backgroundColor: Color(0xFF1A3A5F), // Dark Blue Background
       body: SafeArea(
@@ -188,12 +190,10 @@ class _SignUpPageState extends State<SignUpPage> {
                       _buildCustomTextField("Birth Date:", _birthDateController),
                       _buildCustomTextField("Password:", _passwordController, obscureText: true),
                       _buildCustomTextField("Confirm Password:", _confirmPasswordController, obscureText: true),
-
                       /// ✅ New: Role Text Field
                       _buildCustomTextField("Role: (student or teacher)", _roleController),
-
                       SizedBox(height: 15),
-                      _isLoading
+                      isLoading
                           ? CircularProgressIndicator(color: Colors.orange)
                           : SizedBox(
                               width: double.infinity,
