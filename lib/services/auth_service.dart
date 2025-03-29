@@ -1,28 +1,53 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quackacademy/main.dart';
+import 'package:quackacademy/screens/home_page.dart';
+import 'package:quackacademy/screens/login_page.dart';
+import 'package:quackacademy/screens/profile_page.dart';
+import 'package:quackacademy/screens/signup_page.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Adjust path accordingly
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // ✅ Firestore instance
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Sign up with email and password
+  /// Sign-up method with Firestore user document creation.
   Future<UserCredential?> signUpWithEmailAndPassword(
-      String email, String password, String fullName, String nickname, String birthDate) async {
+    String email,
+    String password,
+    String firstName,
+    String lastName,
+    String username,
+    String birthDate,
+    String role,
+  ) async {
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      print("User created with UID: ${userCredential.user!.uid}");
 
-      // ✅ Save additional user data in Firestore
-      await _firestore.collection("users").doc(userCredential.user!.uid).set({
-        "fullName": fullName,
-        "nickname": nickname,
-        "email": email,
-        "birthDate": birthDate,
-        "createdAt": FieldValue.serverTimestamp(),
-      });
-
+      try {
+        await _firestore.collection("users").doc(userCredential.user!.uid).set({
+          "firstName": firstName,
+          "lastName": lastName,
+          "username": username,
+          "email": email,
+          "birthDate": birthDate,
+          "role": role,
+          "exp": 0,
+          "level": 1,
+          "createdAt": FieldValue.serverTimestamp(),
+        });
+        print(
+            "User document created successfully for UID: ${userCredential.user!.uid}");
+      } catch (firestoreError) {
+        print("Error creating user document: $firestoreError");
+        rethrow;
+      }
       return userCredential;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -34,18 +59,18 @@ class AuthService {
       }
       return null;
     } catch (e) {
-      print('An unexpected error occurred: $e');
+      print('An unexpected error occurred during sign-up: $e');
       return null;
     }
   }
 
-  // Sign in with email and password
-  Future<UserCredential?> signInWithEmailAndPassword(String email, String password) async {
+  /// Sign-in method.
+  Future<UserCredential?> signInWithEmailAndPassword(
+      String email, String password) async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+          email: email, password: password);
+      print("User signed in with UID: ${userCredential.user!.uid}");
       return userCredential;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -57,17 +82,32 @@ class AuthService {
       }
       return null;
     } catch (e) {
-      print('An unexpected error occurred: $e');
+      print('An unexpected error occurred during sign-in: $e');
       return null;
     }
   }
 
-  // Sign out
-  Future<void> signOut() async {
-    await _auth.signOut();
-  }
+  /// Sign-out method with optional Riverpod provider invalidation.
+  Future<void> signOut({WidgetRef? ref}) async {
+  await _auth.signOut();
+  print("✅ User signed out");
 
-  // Get current user
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('profileImagePath');
+
+  if (ref != null) {
+    ref.invalidate(authStateChangesProvider);
+    ref.invalidate(signUpLoadingProvider);
+    ref.invalidate(loginLoadingProvider);
+
+    // Add these to ensure data fully refreshes
+    ref.invalidate(userDataProvider);
+    ref.invalidate(profileDataProvider);
+    print("✅ ALL user providers invalidated after sign-out");
+  }
+}
+
+  /// Get current user.
   User? getCurrentUser() {
     return _auth.currentUser;
   }

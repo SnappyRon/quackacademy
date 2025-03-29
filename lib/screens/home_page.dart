@@ -1,26 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quackacademy/main.dart';
 
-// Import your Java course page here:
+// Import your Java course page and other pages.
 import 'package:quackacademy/screens/courses/java_course/java_course_page.dart';
 import 'package:quackacademy/screens/join_page.dart';
 import 'package:quackacademy/screens/create_session_page.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quackacademy/widgets/current_quest_widget.dart';
 
-/// Riverpod provider that listens to the current user's Firestore document
-final userDataProvider = StreamProvider<Map<String, dynamic>>((ref) {
-  final user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
+/// Riverpod provider that listens to the current user's Firestore document.
+  final userDataProvider = StreamProvider<Map<String, dynamic>>((ref) {
+    final authState = ref.watch(authStateChangesProvider).value;
+    final userId = authState?.uid;
+    
+    if (userId == null) return Stream.value({});
+
     return FirebaseFirestore.instance
         .collection('users')
-        .doc(user.uid)
+        .doc(userId)
         .snapshots()
+        .handleError((error) => print("userDataProvider error: $error"))
         .map((doc) => doc.data() ?? {});
-  } else {
-    return Stream.value({});
-  }
-});
+  });
 
 class HomePage extends ConsumerWidget {
   @override
@@ -28,6 +31,7 @@ class HomePage extends ConsumerWidget {
     final userDataAsync = ref.watch(userDataProvider);
     return userDataAsync.when(
       data: (data) {
+        print("HomePage: user data: $data");
         final String role = data['role'] ?? "";
         final int completedLessons = data['completedLessons'] ?? 0;
         return Scaffold(
@@ -38,20 +42,25 @@ class HomePage extends ConsumerWidget {
           ),
         );
       },
-      loading: () => Scaffold(
-        backgroundColor: const Color(0xFF1A3A5F),
-        body: Center(child: CircularProgressIndicator()),
-      ),
-      error: (error, stack) => Scaffold(
-        backgroundColor: const Color(0xFF1A3A5F),
-        body: Center(child: Text("Error loading data")),
-      ),
+      loading: () {
+        print("HomePage: Loading user data...");
+        return Scaffold(
+          backgroundColor: const Color(0xFF1A3A5F),
+          body: Center(child: CircularProgressIndicator()),
+        );
+      },
+      error: (error, stack) {
+        print("HomePage error: $error");
+        return Scaffold(
+          backgroundColor: const Color(0xFF1A3A5F),
+          body: Center(child: Text("Error loading data: $error")),
+        );
+      },
     );
   }
 }
 
-/// A separate widget that shows the main home UI, with the user role
-/// and completedLessons passed in.
+/// A separate widget that shows the main home UI.
 class HomeContent extends StatelessWidget {
   final String role;
   final int completedLessons;
@@ -75,7 +84,10 @@ class HomeContent extends StatelessWidget {
               const SizedBox(height: 20),
               _buildProgressSection(context),
               const SizedBox(height: 20),
-              _buildQuestSection(context),
+
+              // Replaced your old quest section with the new reusable widget:
+              const CurrentQuestWidget(),
+
               const SizedBox(height: 20),
               _buildCoursesSection(context),
               const SizedBox(height: 20),
@@ -90,7 +102,7 @@ class HomeContent extends StatelessWidget {
     );
   }
 
-  /// Header Section
+  /// Header Section.
   Widget _buildHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -103,7 +115,7 @@ class HomeContent extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.orange,
+                color: Colors.white,
               ),
             ),
             Row(
@@ -113,7 +125,7 @@ class HomeContent extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.orange,
+                    color: Colors.white,
                   ),
                 ),
                 Text("🦆", style: TextStyle(fontSize: 22)),
@@ -126,12 +138,12 @@ class HomeContent extends StatelessWidget {
     );
   }
 
-  /// Dynamic Learning Progress Section
+  /// Dynamic Learning Progress Section.
   Widget _buildProgressSection(BuildContext context) {
     const int totalLessons = 3;
     double progressRatio = (completedLessons / totalLessons).clamp(0.0, 1.0);
     final int progressPercent = (progressRatio * 100).round();
-    final Color barColor = (progressPercent >= 100) ? Colors.green : Colors.orange;
+    final Color barColor = (progressPercent >= 100) ? const Color(0xFF476F95) : const Color(0xFF324C6E);
 
     return Container(
       width: double.infinity,
@@ -165,7 +177,7 @@ class HomeContent extends StatelessWidget {
                     ),
                   ),
                   AnimatedContainer(
-                    duration: Duration(milliseconds: 300),
+                    duration: const Duration(milliseconds: 300),
                     height: 8,
                     width: maxBarWidth * progressRatio,
                     decoration: BoxDecoration(
@@ -190,74 +202,7 @@ class HomeContent extends StatelessWidget {
     );
   }
 
-  /// Current Quest Section
-  Widget _buildQuestSection(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Current Quest",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 5),
-          const Text(
-            "Foundations of Java",
-            style: TextStyle(
-              color: Colors.black87,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: () {
-                  // Check if the current context is still mounted before navigating.
-                  if (!(context as Element).mounted) return;
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => JavaCourseSelectionPage(),
-                    ),
-                  );
-                },
-                child: const Text(
-                  "Get Started",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              const Text(
-                "Deadline!",
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Courses Section
+  /// Courses Section (unchanged).
   Widget _buildCoursesSection(BuildContext context) {
     return Container(
       width: double.infinity,
@@ -292,7 +237,7 @@ class HomeContent extends StatelessWidget {
     );
   }
 
-  /// Clickable Java icon that navigates to JavaCourseSelectionPage
+  /// Clickable Java icon that navigates to JavaCourseSelectionPage.
   Widget _buildCourseIcon(BuildContext context, String assetPath) {
     return GestureDetector(
       onTap: () {
@@ -313,7 +258,7 @@ class HomeContent extends StatelessWidget {
     );
   }
 
-  /// Achievements Section
+  /// Achievements Section.
   Widget _buildAchievementsSection() {
     return Container(
       width: double.infinity,
@@ -324,8 +269,8 @@ class HomeContent extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
+        children: const [
+          Text(
             "Achievements",
             style: TextStyle(
               fontWeight: FontWeight.bold,
@@ -333,38 +278,12 @@ class HomeContent extends StatelessWidget {
               color: Colors.black,
             ),
           ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildAchievementCard("Top Novice", Colors.brown[300]!),
-              _buildAchievementCard("Quiz Star", Colors.blueGrey[300]!),
-              _buildAchievementCard("Perfect Quack", Colors.yellow[400]!),
-            ],
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildAchievementCard(String title, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  /// Session Buttons (Create/Join)
+  /// Session Buttons (unchanged).
   Widget _buildSessionButtons(BuildContext context) {
     final isTeacher = (role == "teacher");
 
@@ -375,7 +294,7 @@ class HomeContent extends StatelessWidget {
             child: _buildSessionCard(
               "Create session here",
               "Create Now",
-              Colors.green,
+              const Color(0xFF476F95),
               context,
             ),
           ),
@@ -384,7 +303,7 @@ class HomeContent extends StatelessWidget {
           child: _buildSessionCard(
             "Join session here",
             "Join here >",
-            Colors.orange,
+            const Color(0xFF476F95),
             context,
           ),
         ),

@@ -216,12 +216,12 @@ class _GameRoomPageState extends ConsumerState<GameRoomPage> {
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.orange.shade300,
+        color: Color(0xFF1A3A5F),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Center(
         child: Text(
-          "Admin: ${widget.playerName}",
+          "Role: ${widget.playerName}",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
@@ -260,7 +260,7 @@ class _GameRoomPageState extends ConsumerState<GameRoomPage> {
                       ? ElevatedButton(
                           onPressed: _toggleReady,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isPlayerReady ? Colors.green : Colors.orange,
+                            backgroundColor: isPlayerReady ? Colors.green : Color(0xFF1A3A5F),
                           ),
                           child: Text(
                             isPlayerReady ? "Ready" : "Not Ready",
@@ -301,7 +301,7 @@ class _GameRoomPageState extends ConsumerState<GameRoomPage> {
             ElevatedButton(
               onPressed: _startGame,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor:  Color(0xFF476F95),
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
               child: Text("Start Now", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),

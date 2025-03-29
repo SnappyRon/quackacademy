@@ -107,7 +107,7 @@ class _InformationPageState extends ConsumerState<InformationPage> {
               Align(
                 alignment: Alignment.topLeft,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1A3A5F)),
                   onPressed: () => Navigator.pop(context),
                   child: Text("Back"),
                 ),
@@ -136,10 +136,10 @@ class _InformationPageState extends ConsumerState<InformationPage> {
 
                     /// Confirm Button
                     isLoading
-                        ? CircularProgressIndicator(color: Colors.orange)
+                        ? CircularProgressIndicator(color: Color(0xFF1A3A5F))
                         : ElevatedButton(
                             onPressed: _updateInfo,
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                            style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1A3A5F)),
                             child: Text("Confirm", style: TextStyle(color: Colors.white, fontSize: 18)),
                           ),
                   ],

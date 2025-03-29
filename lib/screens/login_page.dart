@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quackacademy/main.dart';
 import 'package:quackacademy/main_navigator.dart';
+import 'package:quackacademy/screens/home_page.dart';
+import 'package:quackacademy/screens/profile_page.dart';
 import 'signup_page.dart';
 
 // Riverpod providers for managing login page state.
@@ -38,16 +41,32 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
 
-    // Set loading state to true.
     ref.read(loginLoadingProvider.notifier).state = true;
 
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      // Optional: Sign out any previous user to ensure clean state.
+      await FirebaseAuth.instance.signOut();
 
-      // Navigate to MainNavigator to show the bottom navigation bar.
+      // Attempt sign-in
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      await _auth.currentUser?.reload(); // Refresh the user data explicitly
+
+      // Explicitly invalidate Riverpod providers here:
+      ref.invalidate(authStateChangesProvider);
+      ref.invalidate(userDataProvider);
+      ref.invalidate(profileDataProvider); // <--- ADD THIS LINE TOO
+
+      // Force a refresh of the current user data.
+      await _auth.currentUser?.reload();
+
+      // Invalidate authStateChangesProvider to force rebuilds.
+      ref.invalidate(authStateChangesProvider);
+
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainNavigator(gameCode: 'defaultGameCode')),
+        MaterialPageRoute(
+          builder: (context) => MainNavigator(gameCode: 'defaultGameCode'),
+        ),
       );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -57,19 +76,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
       );
     } finally {
-      // Set loading state to false.
       ref.read(loginLoadingProvider.notifier).state = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Watch the providers for current state.
     final bool isLoading = ref.watch(loginLoadingProvider);
     final bool obscurePassword = ref.watch(loginObscurePasswordProvider);
 
     return Scaffold(
-      backgroundColor: Color(0xFF1A3A5F), // Background color
+      backgroundColor: Color(0xFF1A3A5F),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -80,7 +97,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 // Logo
                 Image.asset('assets/images/duck_logo.png', height: 100),
                 SizedBox(height: 10),
-
                 // App Name
                 Text(
                   "QUACKADEMY",
@@ -92,7 +108,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                 ),
                 SizedBox(height: 20),
-
                 // Login Heading
                 Text(
                   "Login",
@@ -104,7 +119,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                 ),
                 SizedBox(height: 20),
-
                 // Login Form
                 Container(
                   padding: EdgeInsets.all(16),
@@ -129,7 +143,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                       ),
                       SizedBox(height: 10),
-
                       // Password Input
                       Text("Password:", style: TextStyle(fontWeight: FontWeight.bold)),
                       SizedBox(height: 5),
@@ -151,15 +164,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                       ),
                       SizedBox(height: 10),
-
                       // Login Button or Loading Spinner
                       SizedBox(
                         width: double.infinity,
                         child: isLoading
-                            ? Center(child: CircularProgressIndicator(color: Colors.orange))
+                            ? Center(child: CircularProgressIndicator(color: Color(0xFF1A3A5F)))
                             : ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.orange,
+                                  backgroundColor: Color(0xFF1A3A5F),
                                   padding: EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -180,7 +192,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                 ),
                 SizedBox(height: 20),
-
                 // Sign Up Prompt
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

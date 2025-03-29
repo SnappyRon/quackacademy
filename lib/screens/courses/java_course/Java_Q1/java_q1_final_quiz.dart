@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quackacademy/screens/courses/java_course/java_course_page.dart';
+import 'package:quackacademy/services/exp_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,7 +16,6 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
   int _selectedAnswerIndex = -1;
   bool _answered = false;
 
-  // Final Quiz Questions
   final List<Map<String, dynamic>> _questions = [
     {
       "question": "1. To determine the outcome of your code, one must know?",
@@ -26,6 +26,12 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
         "D. What will be added or no longer exist?"
       ],
       "correct": 0,
+      "feedback": [
+        "Correct! Identifying the problem is the first step to solving it.",
+        "Incorrect. Learning facts helps, but it's not the starting point.",
+        "Incorrect. Formulas are useful later, not at the beginning.",
+        "Incorrect. Understanding changes is more about outcomes than problems."
+      ],
     },
     {
       "question": "2. Finding your starting and ending point are crucial to listing the steps of the process. To determine a starting point, determine the answer to these questions, except?",
@@ -36,6 +42,12 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
         "D. What formulas are applicable to the issue at hand?"
       ],
       "correct": 3,
+      "feedback": [
+        "Incorrect. Knowing input data is part of defining a start.",
+        "Incorrect. Locating data is essential to process steps.",
+        "Incorrect. Facts gathered help with clarity.",
+        "Correct! Formulas aren’t directly needed to find a starting point."
+      ],
     },
     {
       "question": "3. As with the starting point, you can find the end point of your algorithm by focusing on these questions, except?",
@@ -46,9 +58,15 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
         "D. How do the data values relate to each other?"
       ],
       "correct": 3,
+      "feedback": [
+        "Incorrect. Facts help define the outcome.",
+        "Incorrect. Identifying changes is key to the end point.",
+        "Incorrect. Additions/removals matter in defining the end.",
+        "Correct! Data relationships help with logic, not defining the endpoint."
+      ],
     },
     {
-      "question": "4. To use a real-world example, let’s say your goal is to have lasagna for dinner. You’ve determined that the starting point is to find a recipe, and that the end result is that you’ll have a lasagna fully cooked and ready to eat by 7 PM. What will you do?",
+      "question": "4. To use a real-world example, let’s say your goal is to have lasagna for dinner...",
       "options": [
         "A. Determine how will you accomplish each step.",
         "B. List the steps from start to finish.",
@@ -56,6 +74,12 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
         "D. Determine the outcome of your code."
       ],
       "correct": 1,
+      "feedback": [
+        "Incorrect. That comes after listing the steps.",
+        "Correct! Writing the steps defines the algorithm.",
+        "Incorrect. You already know the end goal.",
+        "Incorrect. The outcome is already defined as dinner by 7."
+      ],
     },
     {
       "question": "5. Now that you’ve written your algorithm, it’s time to evaluate the process by?",
@@ -66,98 +90,116 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
         "D. Determine how will you accomplish each step."
       ],
       "correct": 0,
+      "feedback": [
+        "Correct! Reviewing ensures it's complete and efficient.",
+        "Incorrect. That's done earlier in the process.",
+        "Incorrect. That’s also established before writing.",
+        "Incorrect. You’ve already done this during creation."
+      ],
     },
     {
       "question": "6. The aim of pseudocode is to make programming easier by using symbols",
-      "options": [
-        "A. Yes",
-        "B. No",
-        "C. Maybe",
-        "D. All of the above"
-      ],
+      "options": ["A. Yes", "B. No", "C. Maybe", "D. All of the above"],
       "correct": 2,
+      "feedback": [
+        "Incorrect. This is too definitive.",
+        "Incorrect. Pseudocode *can* make programming easier.",
+        "Correct! The statement is unclear—so 'Maybe' is most accurate.",
+        "Incorrect. This option is too broad."
+      ],
     },
     {
-      "question": "7. Is a way of expressing an algorithm without conforming to specific syntactic rules.",
-      "options": [
-        "A. Pseudocode",
-        "B. Data Type",
-        "C. Algorithm",
-        "D. Flowchart"
-      ],
+      "question": "7. ___ is a way of expressing an algorithm without conforming to specific syntactic rules.",
+      "options": ["A. Pseudocode", "B. Data Type", "C. Algorithm", "D. Flowchart"],
       "correct": 0,
+      "feedback": [
+        "Correct! Pseudocode uses natural language to describe logic.",
+        "Incorrect. Data types define data, not logic flow.",
+        "Incorrect. Algorithms are the logic, not the representation.",
+        "Incorrect. Flowcharts are visual, not text-based."
+      ],
     },
     {
-      "question": "8. It is one of the key characteristics which differentiate a human being from other living creatures on the earth",
-      "options": [
-        "A. Kindness",
-        "B. Character",
-        "C. Intelligence",
-        "D. Beauty"
-      ],
+      "question": "8. It is one of the key characteristics that differentiate humans from other living creatures on earth?",
+      "options": ["A. Kindness", "B. Character", "C. Intelligence", "D. Beauty"],
       "correct": 2,
+      "feedback": [
+        "Incorrect. Not unique to humans alone.",
+        "Incorrect. Many species show character traits.",
+        "Correct! Intelligence uniquely defines human capabilities.",
+        "Incorrect. Beauty is subjective and not exclusive."
+      ],
     },
     {
       "question": "9. It indicates any type of internal operation inside the processor or memory.",
-      "options": [
-        "A. Connector",
-        "B. Terminal",
-        "C. Input/Output",
-        "D. Process"
-      ],
+      "options": ["A. Connector", "B. Terminal", "C. Input/Output", "D. Process"],
       "correct": 1,
+      "feedback": [
+        "Incorrect. Connectors link elements, not processes.",
+        "Correct! Terminal symbols represent internal operations.",
+        "Incorrect. I/O is about external interactions.",
+        "Incorrect. Process symbols show actions, but not specific to internal."
+      ],
     },
     {
-      "question": "10. It is a data type that holds number with a decimal point.",
-      "options": [
-        "A. Boolean",
-        "B. Interger",
-        "C. String",
-        "D. Float"
-      ],
+      "question": "10. It is a data type that holds numbers with a decimal point.",
+      "options": ["A. Boolean", "B. Integer", "C. String", "D. Float"],
       "correct": 3,
+      "feedback": [
+        "Incorrect. Boolean holds true/false only.",
+        "Incorrect. Integer holds whole numbers.",
+        "Incorrect. Strings hold text.",
+        "Correct! Float represents decimal numbers."
+      ],
     },
   ];
 
-  /// Updates local preferences and Firestore to mark the lesson as completed.
-  Future<void> _markJavaQ1Completed() async {
-    // Mark completion locally
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("java_q1_completed", true);
-
-    // Update Firestore to increment completedLessons by 1
+  Future<bool> _markJavaQ1Completed() async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    if (user == null) return false;
+
+    final prefs = await SharedPreferences.getInstance();
+    final String userQ1Key = "java_q1_completed_${user.uid}";
+    final String expAwardedKey = "java_q1_exp_awarded_${user.uid}";
+
+    bool alreadyCompleted = prefs.getBool(userQ1Key) ?? false;
+    bool expAlreadyAwarded = prefs.getBool(expAwardedKey) ?? false;
+
+    if (!alreadyCompleted) {
+      await prefs.setBool(userQ1Key, true);
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
-          .update({
-            "completedLessons": FieldValue.increment(1),
-          });
+          .update({"completedLessons": FieldValue.increment(1)});
     }
+
+    if (!expAlreadyAwarded) {
+      await ExpService.awardExp(50);
+      await prefs.setBool(expAwardedKey, true);
+      return true;
+    }
+
+    return false;
   }
 
-  // Handle answer selection
   void _selectAnswer(int selectedIndex) {
-    if (_answered) return; // Prevent multiple selections
+    if (_answered) return;
 
     setState(() {
       _selectedAnswerIndex = selectedIndex;
       _answered = true;
 
       if (selectedIndex == _questions[_currentQuestionIndex]["correct"]) {
-        _score++; // Increase score for correct answers
+        _score++;
       }
 
-      // Wait 1 second before moving to next question
-      Future.delayed(Duration(seconds: 1), () {
+      Future.delayed(Duration(seconds: 2), () {
         setState(() {
           if (_currentQuestionIndex < _questions.length - 1) {
-            _currentQuestionIndex++; // Move to next question
-            _selectedAnswerIndex = -1; // Reset selection
-            _answered = false;        // Allow new selection
+            _currentQuestionIndex++;
+            _selectedAnswerIndex = -1;
+            _answered = false;
           } else {
-            // Last question answered -> Show results
             _showResultsDialog();
           }
         });
@@ -165,27 +207,27 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
     });
   }
 
-  // Show final results & redirect to Java Course Page
-  void _showResultsDialog() {
-    // Mark Q1 as completed and update the overall progress in Firestore
-    _markJavaQ1Completed();
+  void _showResultsDialog() async {
+    bool newlyAwardedExp = await _markJavaQ1Completed();
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFF1E3A5F),
-        title: Text("Quiz Completed!", style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF1E3A5F),
+        title: const Text("Quiz Completed!", style: TextStyle(color: Colors.white)),
         content: Text(
-          "You scored $_score out of ${_questions.length}",
-          style: TextStyle(color: Colors.white70),
+          newlyAwardedExp
+              ? "Congratulations! You've earned +50 EXP.\n\nYou scored $_score out of ${_questions.length}."
+              : "You scored $_score out of ${_questions.length}.",
+          style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
-            child: Text("Finish", style: TextStyle(color: Colors.greenAccent)),
+            child: const Text("Finish", style: TextStyle(color: Colors.greenAccent)),
             onPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => JavaCourseSelectionPage()),
+                MaterialPageRoute(builder: (_) => JavaCourseSelectionPage()),
               );
             },
           ),
@@ -194,29 +236,38 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
     );
   }
 
+  Widget _feedbackWidget() {
+    if (!_answered) return SizedBox.shrink();
+
+    final feedback = _questions[_currentQuestionIndex]["feedback"][_selectedAnswerIndex];
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Text(
+        feedback,
+        style: const TextStyle(fontSize: 16, color: Colors.yellowAccent),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final current = _questions[_currentQuestionIndex];
+
     return Scaffold(
-      backgroundColor: Color(0xFF1E3A5F),
+      backgroundColor: const Color(0xFF1E3A5F),
       body: SafeArea(
         child: Column(
           children: [
-            // Score Display
             Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Text(
                 "Score: $_score/${_questions.length}",
-                style: TextStyle(
-                  fontSize: 18, 
-                  fontWeight: FontWeight.bold, 
-                  color: Colors.white
-                ),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
-
-            // Animated Progress Bar (quiz progress)
             Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Stack(
                 children: [
                   Container(
@@ -228,7 +279,7 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
                     ),
                   ),
                   AnimatedContainer(
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 500),
                     height: 8,
                     width: MediaQuery.of(context).size.width *
                         ((_currentQuestionIndex + 1) / _questions.length),
@@ -240,24 +291,23 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
                 ],
               ),
             ),
-
             _title("FINAL QUIZ"),
-
             Expanded(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _question(_questions[_currentQuestionIndex]["question"]),
-                    SizedBox(height: 10),
+                    _question(current["question"]),
+                    const SizedBox(height: 10),
                     ...List.generate(
-                      _questions[_currentQuestionIndex]["options"].length,
+                      current["options"].length,
                       (index) => _answerOption(
-                        text: _questions[_currentQuestionIndex]["options"][index],
+                        text: current["options"][index],
                         index: index,
                       ),
                     ),
+                    _feedbackWidget(),
                   ],
                 ),
               ),
@@ -268,41 +318,30 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
     );
   }
 
-  // Title Widget
   Widget _title(String text) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Text(
         text,
-        style: TextStyle(
-          fontSize: 24, 
-          fontWeight: FontWeight.bold, 
-          color: Colors.white
-        ),
+        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
       ),
     );
   }
 
-  // Question Text Widget
   Widget _question(String question) {
     return Text(
       question,
-      style: TextStyle(
-        fontSize: 18, 
-        fontWeight: FontWeight.bold, 
-        color: Colors.white
-      ),
+      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
     );
   }
 
-  // Answer Option Widget (with feedback)
   Widget _answerOption({required String text, required int index}) {
-    Color optionColor = Colors.white12; // Default color
+    Color optionColor = Colors.white12;
     if (_answered) {
       if (index == _questions[_currentQuestionIndex]["correct"]) {
-        optionColor = Colors.green; // Correct answer
+        optionColor = Colors.green;
       } else if (index == _selectedAnswerIndex) {
-        optionColor = Colors.red; // Incorrect answer
+        optionColor = Colors.red;
       }
     }
 
@@ -310,8 +349,8 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
       onTap: () => _selectAnswer(index),
       child: Container(
         width: double.infinity,
-        margin: EdgeInsets.symmetric(vertical: 5),
-        padding: EdgeInsets.all(12),
+        margin: const EdgeInsets.symmetric(vertical: 5),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: optionColor,
           borderRadius: BorderRadius.circular(8),
@@ -319,7 +358,7 @@ class _JavaQ1FinalQuizPageState extends State<JavaQ1FinalQuizPage> {
         ),
         child: Text(
           text,
-          style: TextStyle(color: Colors.white, fontSize: 16),
+          style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
     );

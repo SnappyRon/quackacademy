@@ -24,17 +24,21 @@ class _MainNavigatorState extends ConsumerState<MainNavigator> {
   @override
   void initState() {
     super.initState();
-    // Initialize the provider's state using the widget's initial index.
-    ref.read(currentTabIndexProvider.notifier).state = widget.initialIndex;
+    // Set the initial tab index using the widget's parameter.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(currentTabIndexProvider.notifier).state = widget.initialIndex;
+      }
+    });
 
-    // Create the pages list, ensuring widget.gameCode is available.
+    // Create the pages list.
     _pages = [
       HomePage(),
       LearnPage(),
       LeaderboardPage(
         isTeacher: false,
-        currentPlayerId: 'defaultUserID', // Replace with a valid user ID
-        quizId: 'defaultQuizID',          // Replace with a valid quiz ID if needed
+        currentPlayerId: 'defaultUserID', // Replace with actual user ID if available.
+        quizId: 'defaultQuizID',          // Replace with actual quiz ID if needed.
         gameCode: widget.gameCode,
       ),
       ProfilePage(),
@@ -66,7 +70,7 @@ class _MainNavigatorState extends ConsumerState<MainNavigator> {
           unselectedLabelStyle: const TextStyle(fontSize: 12),
           type: BottomNavigationBarType.fixed,
           onTap: (index) {
-            // Update the provider state when a tab is tapped.
+            // Simply update the provider's state.
             ref.read(currentTabIndexProvider.notifier).state = index;
           },
           items: [

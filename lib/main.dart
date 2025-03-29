@@ -63,7 +63,8 @@ class QuackAcademyApp extends StatelessWidget {
         '/home': (context) => HomePage(),
         '/join': (context) => JoinPage(), // ✅ Added JoinPage route
         '/profile': (context) => ProfilePage(), // ✅ ProfilePage route
-        '/information': (context) => InformationPage(), // ✅ InformationPage route
+        '/information': (context) =>
+            InformationPage(), // ✅ InformationPage route
         '/password': (context) => PasswordPage(),
         '/learn': (context) => LearnPage(), // ✅ LearnPage route
         '/main': (context) => MainNavigator(gameCode: 'defaultGameCode'),
@@ -79,20 +80,17 @@ class AuthWrapper extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateChangesProvider);
+
     return authState.when(
       data: (user) {
         if (user != null) {
-          return MainNavigator(gameCode: 'defaultGameCode');
+          return MainNavigator(key: ValueKey(user.uid), gameCode: 'defaultGameCode');
         } else {
           return LoginPage();
         }
       },
-      loading: () => Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
-      error: (error, stack) => Scaffold(
-        body: Center(child: Text('Something went wrong!')),
-      ),
+      loading: () => Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (error, stack) => Scaffold(body: Center(child: Text('Something went wrong!'))),
     );
   }
 }

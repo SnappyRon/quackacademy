@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   static Color primaryColor = Color(0xFF1E3A5F); // Dark Blue Background
   static Color textColor = Colors.white;
-  static Color buttonColor = Colors.orange;
+  static Color buttonColor = Color(0xFF1A3A5F);
   static Color textFieldFill = Colors.white; // Added missing property
   static Color textFieldBorder = Colors.grey.shade400; // Added missing property
 

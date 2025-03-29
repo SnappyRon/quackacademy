@@ -1,38 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:quackacademy/screens/courses/java_course/Java_Q3/java_all_lessons_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-
-class JavaPreTestPage extends StatefulWidget {
+class JavaPreTestPage3 extends StatefulWidget {
   @override
-  _JavaPreTestPageState createState() => _JavaPreTestPageState();
+  _JavaPreTestPage3State createState() => _JavaPreTestPage3State();
 }
 
-class _JavaPreTestPageState extends State<JavaPreTestPage> {
+class _JavaPreTestPage3State extends State<JavaPreTestPage3> {
   Map<int, String?> _selectedAnswers = {};
   Map<int, bool?> _answerCorrectness = {};
   double _progress = 0.25;
 
+  /// Pre-test questions with EXP text removed
   final List<Map<String, dynamic>> _questions = [
     {
       "question": "1. It is a set of accessibility in Java?",
       "options": ["Public", "Default", "Private", "Protected"],
-      "answer": "Public"
+      "answer": "Public",
+      "explanation": "Public means the member is visible everywhere."
     },
     {
       "question": "2. Which declaration is within a Java package?",
       "options": ["Public", "Default", "Private", "Protected"],
-      "answer": "Default"
+      "answer": "Default",
+      "explanation": "Default has package-level visibility."
     },
     {
       "question": "3. The Java declaration found within the class only?",
       "options": ["Public", "Default", "Private", "Protected"],
-      "answer": "Private"
+      "answer": "Private",
+      "explanation": "Private restricts access to the declaring class."
     },
   ];
 
-  void _submitAnswers() {
+  /// Updated submit function without EXP awarding
+  Future<void> _submitAnswers() async {
+    // Check SharedPreferences to see if the pre-test is already completed
+    final prefs = await SharedPreferences.getInstance();
+    final pretestDone = prefs.getBool('pretest_completed') ?? false;
+
+    if (!pretestDone) {
+      // Mark this test as completed in SharedPreferences
+      await prefs.setBool('pretest_completed', true);
+    }
+
+    // Navigate to JavaAllLessonsPage3
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => JavaAllLessonsPage1()));
+      context,
+      MaterialPageRoute(builder: (context) => JavaAllLessonsPage3()),
+    );
   }
 
   @override
@@ -109,9 +126,10 @@ class _JavaPreTestPageState extends State<JavaPreTestPage> {
                       Text(
                         questionData["question"],
                         style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                       ...questionData["options"].map<Widget>((option) {
                         bool isSelected = _selectedAnswers[index] == option;
@@ -122,21 +140,20 @@ class _JavaPreTestPageState extends State<JavaPreTestPage> {
                         Color answerColor = Colors.white24;
                         if (_selectedAnswers.containsKey(index)) {
                           if (isCorrect) {
-                            answerColor = Colors.green; // Correct answer
+                            answerColor = Colors.green;
                           } else if (isWrongSelected) {
-                            answerColor = Colors.red; // Incorrect answer
+                            answerColor = Colors.red;
                           }
                         }
 
                         return GestureDetector(
                           onTap: () {
                             if (_selectedAnswers.containsKey(index)) return;
-
                             setState(() {
                               _selectedAnswers[index] = option;
                               _answerCorrectness[index] = isCorrect;
-                              _progress = (_selectedAnswers.length /
-                                  _questions.length);
+                              _progress =
+                                  (_selectedAnswers.length / _questions.length);
                             });
                           },
                           child: Container(
@@ -154,16 +171,14 @@ class _JavaPreTestPageState extends State<JavaPreTestPage> {
                                           ? Icons.check_circle
                                           : Icons.cancel)
                                       : Icons.circle_outlined,
-                                  color: isSelected
-                                      ? (isCorrect
-                                          ? Colors.white
-                                          : Colors.white)
-                                      : Colors.white70,
+                                  color:
+                                      isSelected ? Colors.white : Colors.white70,
                                 ),
                                 SizedBox(width: 10),
                                 Text(
                                   option,
-                                  style: TextStyle(fontSize: 16, color: Colors.white),
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.white),
                                 ),
                               ],
                             ),
@@ -171,14 +186,27 @@ class _JavaPreTestPageState extends State<JavaPreTestPage> {
                         );
                       }).toList(),
 
-                      // Ensure the correct answer is always shown in green if wrong answer was picked
+                      // If answered incorrectly, show correct answer + explanation
                       if (_selectedAnswers.containsKey(index) &&
-                          !_answerCorrectness[index]!)
+                          _answerCorrectness[index] == false)
                         Padding(
                           padding: EdgeInsets.only(left: 10, top: 5),
                           child: Text(
-                            "Correct answer: ${questionData["answer"]}",
-                            style: TextStyle(fontSize: 16, color: Colors.greenAccent),
+                            "Correct answer: ${questionData["answer"]}\nWhy? ${questionData["explanation"]}",
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.greenAccent),
+                          ),
+                        ),
+
+                      // If answered correctly, also show explanation
+                      if (_selectedAnswers.containsKey(index) &&
+                          _answerCorrectness[index] == true)
+                        Padding(
+                          padding: EdgeInsets.only(left: 10, top: 5),
+                          child: Text(
+                            "Great job!\n${questionData["explanation"]}",
+                            style: TextStyle(
+                                fontSize: 16, color: Colors.lightBlueAccent),
                           ),
                         ),
 
@@ -193,20 +221,22 @@ class _JavaPreTestPageState extends State<JavaPreTestPage> {
             Padding(
               padding: EdgeInsets.all(16),
               child: GestureDetector(
-                onTap: _selectedAnswers.length == _questions.length ? _submitAnswers : null,
+                onTap:
+                    _selectedAnswers.length == _questions.length ? _submitAnswers : null,
                 child: Container(
                   width: double.infinity,
                   padding: EdgeInsets.symmetric(vertical: 15),
                   decoration: BoxDecoration(
                     color: _selectedAnswers.length == _questions.length
-                        ? Colors.orange
+                        ?  Color(0xFF476F95)
                         : Colors.grey,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     "Continue",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
               ),

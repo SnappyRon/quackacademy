@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'java_final_quiz.dart'; // Adjust the path if necessary
 
-class JavaAllLessonsPage1 extends StatefulWidget {
+class JavaAllLessonsPage3 extends StatefulWidget {
   @override
-  _JavaAllLessonsPage1State createState() => _JavaAllLessonsPage1State();
+  _JavaAllLessonsPage3State createState() => _JavaAllLessonsPage3State();
 }
 
-class _JavaAllLessonsPage1State extends State<JavaAllLessonsPage1> {
+class _JavaAllLessonsPage3State extends State<JavaAllLessonsPage3> {
   int _currentLessonIndex = 0;
   final int _totalLessons = 5;
 
   double get _progress => (_currentLessonIndex + 1) / _totalLessons;
 
-  // Lesson contents for Lessons 1 - 5
+  // Lesson contents for Lessons 1 - 5 (EXP text removed)
   List<List<Widget>> get _lessonContents => [
         // Lesson 1: INSTANCEOF OPERATOR IN JAVA
         [
@@ -143,6 +143,11 @@ class _JavaAllLessonsPage1State extends State<JavaAllLessonsPage1> {
             "   }\n"
             "}",
           ),
+          SizedBox(height: 10),
+          Text(
+            "Once you reach the end, you'll take the final quiz!",
+            style: TextStyle(color: Colors.lightGreenAccent),
+          ),
         ],
       ];
 
@@ -221,6 +226,7 @@ class _JavaAllLessonsPage1State extends State<JavaAllLessonsPage1> {
   // Bottom Button Widget
   Widget _buildBottomButton(BuildContext context) {
     bool isLastLesson = _currentLessonIndex == _totalLessons - 1;
+
     return Padding(
       padding: EdgeInsets.all(16),
       child: GestureDetector(
@@ -232,7 +238,7 @@ class _JavaAllLessonsPage1State extends State<JavaAllLessonsPage1> {
           } else {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => JavaFinalQuizPage()),
+              MaterialPageRoute(builder: (_) => JavaFinalQuizPage()),
             );
           }
         },
@@ -240,14 +246,17 @@ class _JavaAllLessonsPage1State extends State<JavaAllLessonsPage1> {
           width: double.infinity,
           padding: EdgeInsets.symmetric(vertical: 15),
           decoration: BoxDecoration(
-            color: Colors.orange,
+            color: Color(0xFF476F95),
             borderRadius: BorderRadius.circular(10),
           ),
           alignment: Alignment.center,
           child: Text(
             isLastLesson ? "Take Final Quiz" : "Next Lesson",
             style: TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
         ),
       ),

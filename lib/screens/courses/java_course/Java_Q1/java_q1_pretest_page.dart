@@ -12,7 +12,7 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
   int _selectedAnswerIndex = -1; // Track selected answer
   bool _answered = false; // Track if the user has answered
 
-  // Updated Pre-Test Questions
+  // Updated Pre-Test Questions with feedback for each answer option
   final List<Map<String, dynamic>> _questions = [
     {
       "question": "1. To determine the outcome of your code, one must know?",
@@ -23,6 +23,12 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
         "D. What will be added or no longer exist?"
       ],
       "correct": 0,
+      "feedback": [
+        "Correct! Knowing the specific problem ensures the solution meets the intended goal.",
+        "Incorrect. While facts may be gathered, the focus is on identifying the problem to solve.",
+        "Incorrect. Formulas may help later, but the problem must be defined first.",
+        "Incorrect. Determining changes is not the initial step in understanding the problem."
+      ],
     },
     {
       "question": "2. Finding your starting and ending point are crucial to listing the steps of the process. To determine a starting point, determine the answer to these questions, except?",
@@ -33,6 +39,12 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
         "D. What formulas are applicable to the issue at hand?"
       ],
       "correct": 3,
+      "feedback": [
+        "Incorrect. Knowing what data is available is key to starting the process.",
+        "Incorrect. Locating the data is essential for understanding your starting point.",
+        "Incorrect. Learning the facts from the process helps define the initial situation.",
+        "Correct! Determining applicable formulas is not necessary for establishing the starting point."
+      ],
     },
     {
       "question": "3. As with the starting point, you can find the end point of your algorithm by focusing on these questions, except?",
@@ -43,6 +55,12 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
         "D. How do the data values relate to each other?"
       ],
       "correct": 3,
+      "feedback": [
+        "Incorrect. Learning facts from the process helps define the outcome.",
+        "Incorrect. Changes between the start and end are crucial for determining the result.",
+        "Incorrect. Understanding what is added or removed is part of outlining the end point.",
+        "Correct! While relationships between data values are important, they are not used to define the end point."
+      ],
     },
     {
       "question": "4. To use a real-world example, let’s say your goal is to have lasagna for dinner. You’ve determined that the starting point is to find a recipe, and that the end result is that you’ll have a lasagna fully cooked and ready to eat by 7 PM. What will you do?",
@@ -53,6 +71,12 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
         "D. Determine the outcome of your code."
       ],
       "correct": 1,
+      "feedback": [
+        "Incorrect. Determining how to accomplish each step comes after listing the steps.",
+        "Correct! Listing the steps from start to finish lays out your algorithm.",
+        "Incorrect. You already know the ending point.",
+        "Incorrect. The outcome is already defined as having a cooked lasagna."
+      ],
     },
     {
       "question": "5. Now that you’ve written your algorithm, it’s time to evaluate the process by?",
@@ -63,6 +87,12 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
         "D. Determine how will you accomplish each step."
       ],
       "correct": 0,
+      "feedback": [
+        "Correct! Reviewing the algorithm helps you evaluate and optimize the process.",
+        "Incorrect. The steps have already been listed.",
+        "Incorrect. The end point is already known.",
+        "Incorrect. Determining the method is part of creating the algorithm, not evaluating it."
+      ],
     },
   ];
 
@@ -79,7 +109,7 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
       }
 
       // Wait 1 second before moving to next question
-      Future.delayed(Duration(seconds: 1), () {
+      Future.delayed(Duration(seconds: 2), () {
         setState(() {
           if (_currentQuestionIndex < _questions.length - 1) {
             _currentQuestionIndex++; // Move to next question
@@ -122,6 +152,7 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
 
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic> currentQuestion = _questions[_currentQuestionIndex];
     return Scaffold(
       backgroundColor: Color(0xFF1E3A5F),
       body: SafeArea(
@@ -152,7 +183,8 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
                   AnimatedContainer(
                     duration: Duration(milliseconds: 500),
                     height: 8,
-                    width: MediaQuery.of(context).size.width * ((_currentQuestionIndex + 1) / _questions.length),
+                    width: MediaQuery.of(context).size.width *
+                        ((_currentQuestionIndex + 1) / _questions.length),
                     decoration: BoxDecoration(
                       color: Colors.greenAccent,
                       borderRadius: BorderRadius.circular(10),
@@ -170,15 +202,25 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _question(_questions[_currentQuestionIndex]["question"]),
+                    _question(currentQuestion["question"]),
                     SizedBox(height: 10),
                     ...List.generate(
-                      _questions[_currentQuestionIndex]["options"].length,
+                      currentQuestion["options"].length,
                       (index) => _answerOption(
-                        text: _questions[_currentQuestionIndex]["options"][index],
+                        text: currentQuestion["options"][index],
                         index: index,
                       ),
                     ),
+                    // Feedback widget: Show explanation if the user answered incorrectly.
+                    if (_answered &&
+                        _selectedAnswerIndex != currentQuestion["correct"])
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: Text(
+                          currentQuestion["feedback"][_selectedAnswerIndex],
+                          style: TextStyle(fontSize: 16, color: Colors.yellowAccent),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -208,7 +250,7 @@ class _JavaQ1PretestPageState extends State<JavaQ1PretestPage> {
     );
   }
 
-  // Answer Option Widget (with feedback)
+  // Answer Option Widget (with color feedback)
   Widget _answerOption({required String text, required int index}) {
     Color optionColor = Colors.white12; // Default color
     if (_answered) {

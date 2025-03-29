@@ -90,7 +90,7 @@ class CreateSessionPage extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  backgroundColor: const Color(0xFF476F95),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
@@ -176,7 +176,7 @@ class CreateSessionPage extends ConsumerWidget {
           ElevatedButton(
             onPressed: onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
+              backgroundColor:  Color(0xFF476F95),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

@@ -6,7 +6,6 @@ class JavaAllLessonsPage2 extends StatefulWidget {
   _JavaAllLessonsPageState2 createState() => _JavaAllLessonsPageState2();
 }
 
-
 class _JavaAllLessonsPageState2 extends State<JavaAllLessonsPage2> {
   /// We now have 20 total lessons across Modules 1, 2, 3, and 4.
   /// After lesson index 19 (the 20th lesson), we go to Final Quiz.
@@ -81,533 +80,890 @@ class _JavaAllLessonsPageState2 extends State<JavaAllLessonsPage2> {
   }
 
   List<List<Widget>> get _lessonContents => [
-    // ───────────────────────── MODULE 1 ─────────────────────────
+        // ───────────────────────── MODULE 1 ─────────────────────────
 
-    // Lesson 1 (index 0)
-    [
-      Text(
-        "Apply Basics of Java Language - Module 2 (Lesson 1)",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.yellow,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "What is Integrated Development Environment (IDE)? \n\n"
-        "An integrated development environment (IDE) is an application that enables development of an application.\n\n"
-        "They are designed to include all programming tasks in one application. Thus, IDEs gives all the tools you need in programming.\n\n"
-        "An example of a free, open source, integrated development environment that enables you to develop desktop, mobile and web applications is NetBeans IDE.\n\n" 
-        "The IDE supports application development in various languages, including Java, HTML5, PHP and C++. The IDE provides integrated support for the complete development cycle, from project creationthrough debugging, profiling and deployment.\n\n"
-        "The IDE runs on Windows, Linux, Mac OS X, and other UNIX-based systems. The IDE provides comprehensive support for JDK 8 technologies and the most recent Java enhancements.\n\n"
-        "It is the first IDE that provides support for JDK 8, Java EE 7, and JavaFX 2. The IDE fully supports Java EE using the latest standards for Java, XML, Web services, and SQL and fully supports the GlassFish Server, the reference implementation of Java EE.\n\n",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 16,
-          color: Colors.white,
-        ),
-      ),
-    ],
+        // Lesson 1 (index 0)
+        [
+          Text(
+            "Apply Basics of Java Language",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            "What is an IDE?\n\n"
+            "IDE stands for Integrated Development Environment. It's a tool that helps you write and build programs easily. Instead of using many separate tools, an IDE puts everything you need in one place.\n\n"
+            "One good example is NetBeans. It's free and works on Windows, macOS, and Linux. You can use it to make apps for desktop, mobile, and the web.\n\n"
+            "NetBeans supports many languages like Java, HTML, PHP, and C++. It also helps with the full process — from writing your code to testing and running it.\n\n"
+            "It works great with Java tools like JDK 8, Java EE 7, and JavaFX. It also supports GlassFish Server, which is used for building and testing Java web apps.",
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+            ),
+          ),
+        ],
 
-    // Lesson 2 (index 1)
-    [
-      Text(
-        "User Interface Specification: Window System, Final Draft",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.yellow,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "The window system is a visual framework of the IDE. It displays windows and allows to manage them to suit the user needs while performing a concrete task.\n\n"
+        // Lesson 2 (index 1)
+        [
+          Text(
+            "User Interface Specification: Window System",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(
+                    text:
+                        "The window system is the part of the IDE that shows all the different windows you use while coding. It lets you arrange them the way you like so you can work more comfortably.\n\n"),
+                TextSpan(text: "Key features of the window system:\n"),
+                TextSpan(text: "1. "),
+                TextSpan(
+                    text: "Document-focused",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " – Your code files (documents) are the main focus.\n"),
+                TextSpan(text: "2. "),
+                TextSpan(
+                    text: "Simple",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: " – Only shows what you need. Not cluttered.\n"),
+                TextSpan(text: "3. "),
+                TextSpan(
+                    text: "Customizable",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " – You can adjust the layout or add your own tools/modules.\n"),
+                TextSpan(text: "4. "),
+                TextSpan(
+                    text: "Keyboard-friendly",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " – You can use all features with just the keyboard.\n\n"),
+                TextSpan(text: "Important terms to know:\n\n"),
+                TextSpan(
+                    text: "Window System",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " – Controls how windows inside the IDE behave. It does not control pop-up boxes (dialogs), which are handled by your computer’s system.\n\n"),
+                TextSpan(
+                    text: "Main Window",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " – The main part of NetBeans. It includes the menu bar, toolbars, status bar, and other windows (in MDI mode). In SDI mode, it only shows the menu and toolbar.\n\n"),
+                TextSpan(
+                    text: "Window",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " – A basic panel inside the IDE, also called an IDE Window. Some older versions call this a 'View.'\n\n"),
+                TextSpan(
+                    text: "Document Window",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " – A special window used to edit code. It's different from other windows and may be called 'Editor' in older versions.\n\n"),
+                TextSpan(
+                    text: "Dialog Box",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " – A pop-up window, like when you save a file or change settings. These are controlled by your computer, not the IDE.\n\n"),
+                TextSpan(
+                    text: "Window Area",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " – The space inside the main window where other windows are placed.\n\n"),
+                TextSpan(
+                    text: "Document Area",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " – A special part of the Window Area that holds your code editors (Document Windows).\n\n"),
+                TextSpan(
+                    text: "Status Line (Status Bar)",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " – Shows updates and information about what the IDE is doing. It's different from status lines inside editors or tools.\n\n"),
+              ],
+            ),
+          ),
+        ],
 
-        "Attributes of the new design: \n"
-        
-        "1. document centric– documents are the center of windowing system.\n\n"
-        "2. simple– provides only necessary features\n\n"
-        "3. open– open to the user customization; allows an easy module integration to the default layout \n\n"
-        "4. keyboard accessible– all features are fully keyboard accessible \n\n"
+        // Lesson 3 (index 2)
+        [
+          Text(
+            "Detailed Descriptions",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            "Main Window",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            "The main window is the main container of the IDE. It holds the menu bar, toolbars, status bar, and other windows.\n\n"
+            "All windows stay inside the main window — you can't drag them outside. These windows are shown in two main sections:\n"
+            "- The Document Area: where code and text files open.\n"
+            "- The Window Area: where tools like project explorers, output panels, or search windows are displayed.",
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          _clickableFlowchart("assets/images/Mainwindow.png"),
+          SizedBox(height: 10),
+          Text(
+            "Main window features:\n\n"
+            "• Title – Shows the app name and, if you're working with a project, the project name too.\n"
+            "   Example format: AppName - ProjectName\n\n"
+            "• Icon – The main window uses the app’s icon.",
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+            ),
+          ),
+        ],
 
-        "The following are key terms that you should get familiar with in learning IDE. These are the following:\n\n"
+        // Netbeanslayout
+        [
+          Text(
+            "NetBeans Layout",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(
+                    text:
+                        "The NetBeans layout is divided into four main areas, as shown in the graphic:\n\n"),
+                TextSpan(
+                    text: "• ", style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "Control Area\n"),
+                TextSpan(
+                    text: "• ", style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "Reference Area\n"),
+                TextSpan(
+                    text: "• ", style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "Working Area\n"),
+                TextSpan(
+                    text: "• ", style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "Status Area\n"),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          _clickableFlowchart("assets/images/Neatbean.png"),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(text: "Control Area Elements:\n\n"),
+                TextSpan(
+                    text: "Main Menu – ",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        "Located at the top of the NetBeans window. You can access it using your mouse or by pressing "),
+                TextSpan(
+                    text: "F10", style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: " or the "),
+                TextSpan(
+                    text: "Alt", style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: " key on your keyboard.\n\n"),
+                TextSpan(
+                    text:
+                        "When the menu is active, one menu item is always selected, and you'll notice one letter in each item is underlined to help with keyboard navigation.\n\n"),
+                TextSpan(
+                    text:
+                        "The main menu always shows the same items, and they are always active. When you open a menu item, a submenu appears. These submenus are usually consistent, but some items may be enabled or disabled depending on the context.\n\n"),
+                TextSpan(
+                    text: "Enabled items",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: " can be used at that moment. "),
+                TextSpan(
+                    text: "Disabled items",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " are grayed out and not available based on what you're doing."),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          _clickableFlowchart("assets/images/Mainmenuofneatbeans.png"),
+        ],
 
-        "Window System – a framework controlling behavior of windows and document windows. Window system doesn't control behavior of dialog boxes, which are native windows controlled by native window manager.\n\n"
-        "Main Window – the main NetBeans window containing main menu, toolbars, status line and in MDI mode also windows and document windows. In SDI the main window doesn't contain windows, neither document windows.\n\n"
-        "Window– basic window system element, also called ""IDE Window"" in SDI. Note: Some images below use the old terminology and refer to Window as View.\n\n"
-        "Document Window– a special type of window with different behavior and characteristics than regular window. Document Window is part of the window system. Some images below use the old terminology and refer to Document Window as Editor. \n\n"
-        "Dialog Box – a special native window controlled by native window manager. Dialog boxes are not part on NetBeans window system, and are not covered by this spec. \n\n"
-        "Window Area (View Area): The section within the main window used for arranging windows.\n\n"
-        "Document Area (Editor Area): A part of the main window, within the Window Area, specifically for organizing Document Windows.\n\n"
-        "Status Line (Status Bar): Displays the status of IDE actions — separate from status lines inside editor or explorer windows.\n\n",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 16,
-          color: Colors.white,
-        ),
-      ),
-    ],
+        // Quick launch bar
+        [
+          Text(
+            "Quick Launch Bar",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(text: "The "),
+                TextSpan(
+                    text: "Quick Launch Bar",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " gives you fast access to commonly used actions through icons.\n\n"),
+                TextSpan(text: "It is located between the "),
+                TextSpan(
+                    text: "Main Menu",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: " and the main working areas of the IDE.\n\n"),
+                TextSpan(
+                    text:
+                        "The Quick Launch Bar is made up of smaller sections called "),
+                TextSpan(
+                    text: "Toolbars",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: ", each grouping related tools by function."),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          _clickableFlowchart("assets/images/quicklaunchbar.png"),
+        ],
 
-    // Lesson 3 (index 2)
-    [
-      Text(
-        "Detailed Descriptions",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.yellow,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "Main Window",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 16,
-          color: Colors.yellow,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "Main window is a container for application menu, toolbars, status line and windows which are provided and controlled by the window system. All of the windows are always displayed inside the main window, neither user can separate them out of the main window. The windows are shown in two areas depending on a type of displayed window. The areas are a document area and window area. The document area is used for document windows, and the window area lays out all of the other windows.",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 16,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      _clickableFlowchart("assets/images/Mainwindow.png"),
-      SizedBox(height: 10),
-      Text(
-        "The main windows characteristics are following: \n\n"
-        "title - title of main window contains the application name and might contain current project name if the project module is part of IDE distribution. The title pattern is following: ""<application_name> - <project_name>."" \n\n"
-        "icon - icon of main window is the application icon \n\n",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 16,
-          color: Colors.white,
-        ),
-      ),
-    ],
+        // Search tool
+        [
+          Text(
+            "Search Tool",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(text: "The "),
+                TextSpan(
+                    text: "Search Tool",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " helps you quickly find topics within the NetBeans documentation and interface.\n\n"),
+                TextSpan(
+                    text:
+                        "Note: This tool is for general topic searches only. To search source code or project files, NetBeans provides different tools for that."),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          _clickableFlowchart("assets/images/searchtool.png"),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(
+                    text: "Reference Area – ",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        "Provides related information, actions, settings, and resources connected to your current task or project. Each item is shown in its own window, called a "),
+                TextSpan(
+                    text: "Reference Window",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: ".\n\n"),
+                TextSpan(
+                    text:
+                        "These windows may appear or hide depending on what you're doing. Visible windows can either float or stay docked. You can control them through the "),
+                TextSpan(
+                    text: "Windows",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: " menu.\n\n"),
+                TextSpan(
+                    text: "Working Area – ",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        "This is the main area of the NetBeans IDE. It usually looks like a code editor, but it can also be used as a visual interface designer.\n\n"),
+                TextSpan(
+                    text: "Status Area – ",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        "This is the status bar at the bottom of the IDE. It shows information like text mode (insert/overwrite), cursor position, update status, and more."),
+              ],
+            ),
+          ),
+        ],
 
-    // Netbeanslayout
-    [
-      Text(
-        "Netbeanslayout",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.yellow,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "NetBeans layout is distributed in 4 main areas identified by itsnumbers in the graphic: \n\n"
-        "o Control area \n\n"
-        "o Reference area \n\n"
-        "o Working area \n\n"
-        "o Status area ",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 16,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      _clickableFlowchart("assets/images/Neatbean.png"),
+        // Lesson 7 (index 6): WHAT IS A PSEUDOCODE? (Module 2)
+        [
+          Text(
+            "Java Programming Environment",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(text: "Java is a "),
+                TextSpan(
+                    text: "class-based",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: ", "),
+                TextSpan(
+                    text: "object-oriented",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: ", and "),
+                TextSpan(
+                    text: "concurrent",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text: " programming language and runtime environment.\n\n"),
+                TextSpan(
+                    text:
+                        "It’s a powerful, general-purpose programming language that is widely used in business and enterprise applications.\n\n"),
+                TextSpan(
+                    text:
+                        "Because of its flexibility and ability to run programs on different platforms, Java has become one of the most popular programming environments.\n\n"),
+                TextSpan(
+                    text: "In this lesson, you'll learn how to create your "),
+                TextSpan(
+                    text: "first Java program",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: " step by step."),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(
+                    text: "Using a Text Editor and Console\n\n",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "We’ll use "),
+                TextSpan(
+                    text: "Notepad",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " as a basic text editor on Windows to write our Java code.\n\n"),
+                TextSpan(text: "To run the program, you'll use the "),
+                TextSpan(
+                    text: "Command Prompt",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: " to compile and execute it.\n\n"),
+                TextSpan(
+                    text:
+                        "Here’s a very simple Java program. You can try typing this into Notepad and running it through your command line.\n\n"),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          _codeSnippet(
+            "My First Java Program\n"
+            "public class MyFirstJavaProgram {\n"
+            "  public static void main(String[] args) {\n"
+            "    System.out.println(\"Welcome to ICT!\");\n"
+            "  }\n"
+            "}",
+          ),
+        ],
 
-      SizedBox(height: 10),
-      Text(
-        "a. Control Area Elements: \n\n"
-        "Main menu –NetBeans main menu is located in the top of the NetBeans windows. You can access to it either by mouse or keyboard pressing F10 or Alt key, whatever of both. In any case notice as, when the main menu is activated, only one of its items is selected at the same time but all item words became with one letter underlined.\n\n"
-        "Main menu offers always the same items and they are always active. When a main menu item is activated its associated submenu is unfolded. Submenu items are almost the same with very few changes but its state depends of the context. If an item can be applied in a certain context then it will appear enabled, if not it will be disabled, appearing in grey. This rule is the same for all submenus.",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 16,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      _clickableFlowchart("assets/images/Mainmenuofneatbeans.png"),
-    ],
+        // Step 1: Start the text editor.
+        [
+          Text(
+            "Step 1: Start the text editor. \n"
+            "To start the text editor or Notepad in Windows, you can follow these steps:",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            "1. Click “Start”. \n"
+            "2. Click “All Programs”.\n"
+            "3. Go to “Accessories”.\n"
+            "4. Then, click “Notepad”. \n",
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          _clickableFlowchart("assets/images/WindowsNotepad.png"),
+        ],
 
+        // Step 2: Open the terminal.
+        [
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(text: "Step 2: Open the Terminal\n\n"),
+                TextSpan(
+                  text:
+                      "To open Command Prompt in Windows, follow these steps:\n",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal),
+                ),
+              ],
+            ),
+          ),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(text: "1. Click "),
+                TextSpan(
+                    text: "Start\n",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "2. Click "),
+                TextSpan(
+                    text: "All Programs\n",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "3. Go to "),
+                TextSpan(
+                    text: "Accessories\n",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "4. Click "),
+                TextSpan(
+                    text: "Command Prompt\n",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          _clickableFlowchart("assets/images/commandprompt.png"),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(
+                  text: "Step 3: Write the Source Code\n\n",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                    text:
+                        "Open Notepad and type the Java code from your MyFirstJavaProgram example.\n\n"),
+                TextSpan(
+                  text: "Step 4: Save Your Java Program\n\n",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(text: "To save your file in Notepad:\n"),
+                TextSpan(text: "1. Click "),
+                TextSpan(
+                    text: "File",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: " on the menu bar\n"),
+                TextSpan(text: "2. Then click "),
+                TextSpan(
+                    text: "Save\n\n",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "Save with the following details:\n"),
+                TextSpan(
+                    text: "Filename: ",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "MyFirstJavaProgram.java\n"),
+                TextSpan(
+                    text: "Folder Name: ",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "MYJAVAPROGRAMS\n\n"),
+                TextSpan(
+                  text: "Note: ",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(text: "If the folder "),
+                TextSpan(
+                    text: "MYJAVAPROGRAMS",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: " does not exist yet, create it before saving."),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          _clickableFlowchart("assets/images/notepad1.png"),
+        ],
 
-    // Quick launch bar
-    [
-      Text(
-        "Quick launch bar",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.yellow,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "Few of the most common used actions are available through quick launch bar icons. It is located between main menu and the other working areas. It is integrated by smaller and thematic quick launch bars called Toolbars.\n",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      _clickableFlowchart("assets/images/quicklaunchbar.png"),
-      
-    ],
+        // ───────────────────────── MODULE 3 ─────────────────────────
 
-    // Search tool
-    [
-      Text(
-        "Search tool",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Colors.yellow,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "This tool let you find topic inside NetBeans topics. For source code or project searches there are other tools. You can find more information out here.",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 18,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      _clickableFlowchart("assets/images/searchtool.png"),
-      SizedBox(height: 10),
-      Text(
-        "Reference Area - offers you related information/ resources/actions/ references/settings about the task/project you are working in. Each one of these items are represented by its own window called Reference Window. \n\n"
-        "These windows are visible or not depending of circumstances but visible windows can float or stay docked in the framework. Visibility and access management of Reference Windows are available through Windows main menu item.\n\n"
-        "Working area- it’s the main area of NetBeans IDE. Usually looks like and code edition area, but it’s also an User Interface visual compositor.\n\n"
-        "Status area- it is basically a status bar at the bottom of NetBeans windows. It shows you the insert/overwriting status, cursor coordinates, upgrading status and some other info.\n\n",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 18,
-          color: Colors.white,
-        ),
-      ),
-    ],
+        // Lesson 10 (index 9): Flowchart + Technical Terms
+        [
+          Text(
+            "Step 5: Compiling Your Program",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(text: "1. Open the "),
+                TextSpan(
+                    text: "Command Prompt",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: ".\n\n"),
+                TextSpan(
+                    text:
+                        "2. Navigate to the folder where your program is saved:\n"),
+                TextSpan(
+                  text: "   MYFIRSTJAVAPROGRAMS\n\n",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                    text:
+                        "3. Set the path for the Java Development Kit (JDK):\n"),
+                TextSpan(text: "   Type the following command:\n"),
+                TextSpan(
+                  text: "   PATH=C:\\Program Files\\Java\\jdk1.7.0_09\\bin\n\n",
+                  style: TextStyle(fontFamily: 'monospace'),
+                ),
+                TextSpan(
+                  text: "Note: ",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                    text:
+                        "The path might be different based on where Java is installed on your computer.\n\n"),
+                TextSpan(
+                    text:
+                        "4. To compile your Java program, type the following command:\n"),
+                TextSpan(
+                  text: "   javac MyFirstJavaProgram.java\n\n",
+                  style: TextStyle(fontFamily: 'monospace'),
+                ),
+                TextSpan(text: "After compilation, a file named "),
+                TextSpan(
+                  text: "MyFirstJavaProgram.class",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                    text:
+                        " will be created. This is the compiled bytecode that can be run by the Java Virtual Machine (JVM)."),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          _clickableFlowchart("assets/images/firstjavacommand.png"),
+        ],
 
-    // Lesson 7 (index 6): WHAT IS A PSEUDOCODE? (Module 2)
-    [
-      Text(
-        "Java Programming Environment",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Colors.yellow,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "Java is a recently developed, concurrent, class-based, object-oriented programming and runtime environment. \n\n" 
-        "It is a powerful and an all-purpose programming environment that is in-demand as programming languages. \n\n" 
-        "With its flexible features to create and run a program, it has been exceptionally successful in business and enterprise computing. \n\n" 
-        "In this lesson, you will learn how to code your first Java Program in a simple and step-by-step manner. \n",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 18,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "Using a Text Editor and Console\n\n"
-        
-        "We will now use Notepad as our text editor in windows to save the code in the First Java Program. \n\n" 
-        "We will also need to open the command prompt to compile and run the program. Take a look at the following codes. \n\n"
-        "This is an example of a very simple program that you can run on your computer. Do you know how to do this? \n",  
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 18,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      _codeSnippet(
-        "My First Java Program \n"
-          " public class MyFirstJavaPrograms\n"
-            " {\n"
-              "  public static void main(String[] args) \n"
-              " { \n"
-                "  System.out.println (“Welcome to ICT!”); \n"
-              " } \n"
-            "} \n"
-        ,
-      ),
-    ],
+        // Lesson 11 (index 10): Flowchart Symbols + Brief Introduction
+        [
+          Text(
+            "Step 6: Running the Program",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            "To run the Java program:",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 20),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(fontSize: 18, color: Colors.white),
+              children: [
+                TextSpan(text: "Type the following command in the "),
+                TextSpan(
+                    text: "Command Prompt",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: ":\n\n"),
+                TextSpan(
+                  text: "   java MyFirstJavaProgram\n\n",
+                  style: TextStyle(fontFamily: 'monospace'),
+                ),
+                TextSpan(text: "This runs the compiled Java class.\n\n"),
+                TextSpan(
+                    text:
+                        "If everything is correct, you'll see the message:\n"),
+                TextSpan(
+                  text: "   Welcome to ICT!\n",
+                  style: TextStyle(fontFamily: 'monospace'),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          _clickableFlowchart("assets/images/runjavacommand.png"),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.white,
+              ),
+              children: [
+                TextSpan(
+                  text: "Java Errors\n\n",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                    text:
+                        "In this example, we didn't have any errors. But in real programming, errors are common.\n\n"),
+                TextSpan(text: "Java has two main types of errors:\n"),
+                TextSpan(text: "• "),
+                TextSpan(
+                    text: "Syntax Errors",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " – mistakes in code structure, like missing semicolons or wrong spelling.\n"),
+                TextSpan(text: "• "),
+                TextSpan(
+                    text: "Run-time Errors",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " – errors that occur when the program is running, like dividing by zero or accessing something that doesn’t exist."),
+              ],
+            ),
+          ),
+        ],
 
-    // Step 1: Start the text editor.
-    [
-      Text(
-        "Step 1: Start the text editor. \n"
-        "To start the text editor or Notepad in Windows, you can follow these steps:",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Colors.yellow,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "1. Click “Start”. \n"
-        "2. Click “All Programs”.\n"
-        "3. Go to “Accessories”.\n"
-        "4. Then, click “Notepad”. \n",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 18,
-          color: Colors.white,
-        ),
-      ),
-      
-      SizedBox(height: 10),
-      _clickableFlowchart("assets/images/WindowsNotepad.png"),
-      
-      
-      
-    ],
+        // Lesson 12 (index 11): What is a Flowchart?
+        [
+          Text(
+            "1. Syntax Errors",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(fontSize: 18, color: Colors.white),
+              children: [
+                TextSpan(text: "Syntax errors happen "),
+                TextSpan(
+                    text: "during compilation",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " of a Java program. These are mistakes in how the code is written — often caused by typos or incorrect punctuation.\n\n"),
+                TextSpan(
+                    text:
+                        "Java helps you find these errors by showing the line of code with the issue and pointing to the first character that seems wrong. But keep in mind — the actual problem may be earlier in the code.\n\n"),
+                TextSpan(text: "Common syntax errors include:\n"),
+                TextSpan(text: "• Misspelled commands\n"),
+                TextSpan(text: "• Missing semicolons\n"),
+                TextSpan(text: "• Wrong capitalization\n"),
+                TextSpan(text: "• Incorrect special characters\n"),
+                TextSpan(text: "• Missing punctuation\n\n"),
+                TextSpan(text: "Example:\n"),
+                TextSpan(text: "In our "),
+                TextSpan(
+                    text: "MyFirstJavaProgram.java",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        " file, we removed a semicolon and purposely typed a command incorrectly. Let’s look at what happens."),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          _clickableFlowchart("assets/images/MyFirstJavaProgramsInc.png"),
+          SizedBox(height: 10),
+          _clickableFlowchart("assets/images/MyFirstJavaProgramserrs.png"),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(fontSize: 18, color: Colors.white),
+              children: [
+                TextSpan(text: "The error messages tell us:\n\n"),
+                TextSpan(
+                    text:
+                        "• The first and second messages point to an issue with the "),
+                TextSpan(
+                    text: "main method declaration.\n",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "• The third message shows there's a "),
+                TextSpan(
+                    text: "missing semicolon",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: " at the end of a statement.\n\n"),
+                TextSpan(
+                    text: "Tip:\n",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        "If you see a long list of error messages, focus on fixing the "),
+                TextSpan(
+                    text: "first one",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        ". Often, fixing it will make the rest of the errors disappear."),
+              ],
+            ),
+          ),
+        ],
 
-    // Step 2: Open the terminal.
-    [
-      Text(
-        "Step 2: Open the terminal.\n"
-        "To open Command Prompt in Windows, you can follow these steps: \n",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Colors.yellow,
-        ),
-      ),
-      Text(
-        "1. Click “Start”. \n"
-        "2. Click “All Programs”. \n"
-        "3. Go to “Accessories”. \n"
-        "4. Then, click “Command Prompt”."
-        ,
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      _clickableFlowchart("assets/images/commandprompt.png"),
-      SizedBox(height: 10),
-      Text(
-        "Step 3: Write the source code. \n"
-        "In writing the source code, type the code found in MyFirstJavaPrograms in the Notepad. \n\n"
-
-        "Step 4: Save your Java Program. \n"
-        "To open the Save dialog box, follow this: \n"
-        "1. Click “File” which is found on the menu bar. \n"
-        "2. Then, click on “Save”. \n\n"
-
-        "Filename: MyFirstJavaProgram.java \n"
-        "Folder Name: MYJAVAPROGRAMS \n\n"
-
-        "Note: If the folder MYFIRSTJAVAPROGRAMS does not exist yet, you will have to create the folder. "
-        ,
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      _clickableFlowchart("assets/images/notepad1.png"),
-      
-    ],
-
-    // ───────────────────────── MODULE 3 ─────────────────────────
-
-    // Lesson 10 (index 9): Flowchart + Technical Terms
-    [
-      Text(
-        "Step 5: Compiling your program. \n\n"
-        "Go to the Command Prompt window \n"
-        "Go to the folder MYFIRSTJAVAPROGRAMS where you saved the program \n\n"
-        
-        "Specify the path for the Java Development Kit \n\n" 
-        "    TypePATH C:\Program Files\Java\jdk1.7.0_09\bin \n",
-        
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Colors.yellow,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "Note: The path may vary for the specified folder in the installation of Java in your machine. \n\n"
-        "To compile a Java Program, type in the command: javac[filename]\n\n" 
-        "So, in this case, type in: javac MyFirstJavaPrograms.java during compilation, javac adds a file to the disk called [filename].class, or in this case, MyFirstJavaPrograms.class, which is the actual bytecode.\n\n"
-        ,
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      _clickableFlowchart("assets/images/firstjavacommand.png"),
-      
-    ],
-
-    // Lesson 11 (index 10): Flowchart Symbols + Brief Introduction
-    [
-      Text(
-        "Step 6: Running the Program",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Colors.yellow,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "To run the Java Program:",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 20),
-      Text(
-        "Type java[filename without the extension] In the case of our example, type in:javaMyFirstJavaPrograms. You can see on the screen after running the program: “Welcome to ICT!” \n",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      _clickableFlowchart("assets/images/runjavacommand.png"),
-      SizedBox(height: 10),
-      Text(
-        "Java Errors \n\n"
-        
-        "In MyFirstJavaPrograms example, we didn’t encounter any problems in compiling and running the program. However, in programming this is not always the case. In Java, there are two types of errors: Syntax Errors and Run-time Errors.",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 16,
-          color: Colors.white,
-        ),
-      ),
-    ],
-
-    // Lesson 12 (index 11): What is a Flowchart?
-    [
-      Text(
-        "1. Syntax Errors \n",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.yellow,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "Syntax Errors occur after compilation of a Java Program. They are usually typing errors of the syntax of the Java source code. Java attempts to isolate the error by displaying the line of code and pointing to the first incorrect character in that line. However, the problem may not be at the exact point. \n\n"
-        "Common syntax errors in Java are misspelled Java commands, or forgotten semicolon at the end of a statement. Other common mistakes are capitalization, spelling, use of incorrect special characters, and omission of correct punctuation. \n\n"
-        "Example: In our MyFirstJavaProgram.java code, we intentionally omit one semicolon at the end of one statement and type a command incorrectly. The error messages are then generated after compiling the pr ogram.",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 18,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      _clickableFlowchart("assets/images/MyFirstJavaProgramsInc.png"),
-      SizedBox(height: 10),
-      _clickableFlowchart("assets/images/MyFirstJavaProgramserrs.png"),
-      SizedBox(height: 10),
-      Text(
-        "The first and second error message suggests that there is an error on the declaration of an identifier of the main method. The third error message suggests that there is a missing semicolon by the end of a Java statement. \n\n"
-        "As a rule of thumb, if you encounter a lot of error messages, try to connect the first mistake in a long list, and try to compile the program again. Doing so may reduce the total number of errors dramatically.",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 18,
-          color: Colors.white,
-        ),
-      ),
-    ],
-
-    // Lesson 13 (index 12): A Flowchart
-    [
-      Text(
-        "2. Run-time Errors",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      Text(
-        "Run-time Errors are errors that will not display until you run or execute the program. Even programs that compile successfully may display wrong answers if the programmer has not thought the logical processes and structures of the program. \n",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 16,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      _clickableFlowchart("assets/images/IncrementDecrement.png"),
-      SizedBox(height: 10),
-      Text(
-        "The increment and decrement operators can be placed before or after anoperand.",
-        style: TextStyle(
-          fontFamily: 'Jaro',
-          fontSize: 16,
-          color: Colors.white,
-        ),
-      ),
-      SizedBox(height: 10),
-      _codeSnippet(
-          "public class MySecondJavaProgram\n"
-            " {\n"
-              "  public static void main (String[] args) \n"
-              " { \n"
-              "  int a= 2;"
-              "  int b= 5;"
-              "  System.out.println (“Variable value:”);"
-              "  System.out.println (“a=” + a);"
-              "  System.out.println (“b=” + b);" 
-                "  System.out.println (“Welcome to ICT!”); \n"
-              " } \n"
-            "} \n"
-        ,
-      ),
-    ],
-    
-
-  ];
+        // Lesson 13 (index 12): A Flowchart
+        [
+          Text(
+            "2. Run-time Errors",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(fontSize: 18, color: Colors.white),
+              children: [
+                TextSpan(text: "Run-time errors happen "),
+                TextSpan(
+                    text: "while the program is running",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        ". These errors won’t show up during compilation.\n\n"),
+                TextSpan(
+                    text:
+                        "Even if a program compiles correctly, it might still give wrong results if the logic is incorrect or the program structure isn’t well planned.\n"),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          _clickableFlowchart("assets/images/IncrementDecrement.png"),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(fontSize: 18, color: Colors.white),
+              children: [
+                TextSpan(text: "Note: "),
+                TextSpan(
+                    text: "The ",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: "increment (++) "),
+                TextSpan(text: "and "),
+                TextSpan(
+                    text: "decrement (--) ",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text:
+                        "operators can be used before or after a variable (operand). This can affect how the value changes during execution.\n\n"),
+                TextSpan(
+                    text:
+                        "Here’s an example Java program with integer variables and output statements:"),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          _codeSnippet("public class MySecondJavaProgram {\n"
+              "  public static void main(String[] args) {\n"
+              "    int a = 2;\n"
+              "    int b = 5;\n\n"
+              "    System.out.println(\"Variable value:\");\n"
+              "    System.out.println(\"a = \" + a);\n"
+              "    System.out.println(\"b = \" + b);\n"
+              "    System.out.println(\"Welcome to ICT!\");\n"
+              "  }\n"
+              "}"),
+        ],
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -663,7 +1019,7 @@ class _JavaAllLessonsPageState2 extends State<JavaAllLessonsPage2> {
           // Star indicator
           Positioned(
             left: MediaQuery.of(context).size.width * progress - 16,
-            child: const Icon(Icons.star, color: Colors.yellow, size: 20),
+            child: const Icon(Icons.star, color: Colors.white, size: 20),
           ),
         ],
       ),
@@ -696,14 +1052,13 @@ class _JavaAllLessonsPageState2 extends State<JavaAllLessonsPage2> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 15),
           decoration: BoxDecoration(
-            color: Colors.orange,
+            color: Color(0xFF476F95),
             borderRadius: BorderRadius.circular(10),
           ),
           alignment: Alignment.center,
           child: Text(
             isLastLesson ? "Final Quiz" : "Next Lesson",
             style: const TextStyle(
-              fontFamily: 'Jaro',
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.white,

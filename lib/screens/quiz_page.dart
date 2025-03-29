@@ -46,6 +46,8 @@ class _QuizPageState extends State<QuizPage> {
   String? selectedAnswer;
   bool isAnswerSelected = false;
 
+  String? _feedbackMessage;
+
   /// Timer (15 minutes).
   late Timer _timer;
   int _remainingSeconds = 15 * 60; // 900 seconds
@@ -96,7 +98,11 @@ class _QuizPageState extends State<QuizPage> {
 
   /// Listen to room's quizStatus changes (for students).
   void _listenToQuizStatus() {
-    _firestore.collection('rooms').doc(widget.gameCode).snapshots().listen((docSnapshot) async {
+    _firestore
+        .collection('rooms')
+        .doc(widget.gameCode)
+        .snapshots()
+        .listen((docSnapshot) async {
       if (docSnapshot.exists) {
         final data = docSnapshot.data() as Map<String, dynamic>;
         if (data['quizStatus'] == 'stopped') {
@@ -112,11 +118,15 @@ class _QuizPageState extends State<QuizPage> {
             final playerData = playerDoc.data() as Map<String, dynamic>;
             final finalPoints = playerData['points'] ?? 0;
             final playerName = playerData['name'] ?? 'Player';
-            final playerImage = playerData['image'] ?? 'assets/images/Student1.png';
+            final playerImage =
+                playerData['image'] ?? 'assets/images/Student1.png';
 
             // Get quiz title from quizzes collection.
-            DocumentSnapshot quizDoc = await _firestore.collection('quizzes').doc(widget.quizId).get();
-            String quizTitle = (quizDoc.data() as Map<String, dynamic>)['title'] ?? 'Quiz Session';
+            DocumentSnapshot quizDoc =
+                await _firestore.collection('quizzes').doc(widget.quizId).get();
+            String quizTitle =
+                (quizDoc.data() as Map<String, dynamic>)['title'] ??
+                    'Quiz Session';
 
             // Write/update the studentHistory document.
             await _firestore.collection('studentHistory').add({
@@ -137,7 +147,8 @@ class _QuizPageState extends State<QuizPage> {
             builder: (ctx) {
               return AlertDialog(
                 title: Text("Quiz Stopped"),
-                content: Text("The teacher has stopped the quiz. You will now be redirected to the leaderboard."),
+                content: Text(
+                    "The teacher has stopped the quiz. You will now be redirected to the leaderboard."),
                 actions: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -145,7 +156,8 @@ class _QuizPageState extends State<QuizPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 40),
                     ),
                     onPressed: () {
                       Navigator.of(ctx).pop();
@@ -161,7 +173,8 @@ class _QuizPageState extends State<QuizPage> {
                         ),
                       );
                     },
-                    child: Text("OK", style: GoogleFonts.poppins(color: Colors.white)),
+                    child: Text("OK",
+                        style: GoogleFonts.poppins(color: Colors.white)),
                   ),
                 ],
               );
@@ -197,7 +210,8 @@ class _QuizPageState extends State<QuizPage> {
     if (currentIndex < questions.length) {
       setState(() {
         currentQuestion = questions[currentIndex]['question'] ?? '';
-        currentAnswers = List<String>.from(questions[currentIndex]['answers'] ?? []);
+        currentAnswers =
+            List<String>.from(questions[currentIndex]['answers'] ?? []);
         selectedAnswer = null;
         isAnswerSelected = false;
       });
@@ -227,13 +241,29 @@ class _QuizPageState extends State<QuizPage> {
   /// Student answering a question.
   void _answerQuestion(String answer) async {
     if (isAnswerSelected) return;
+
+    // Mark the answer as selected.
     setState(() {
       isAnswerSelected = true;
       selectedAnswer = answer;
     });
 
-    final correctAnswer = questions[currentIndex]['correctAnswer'];
-    bool isCorrect = (answer == correctAnswer);
+    // Get the correct answer from the current question.
+    final correctAnswer =
+        questions[currentIndex]['correctAnswer'].toString().trim();
+    bool isCorrect = answer.toString().trim() == correctAnswer;
+
+    // If the answer is wrong, set the feedback message.
+    if (!isCorrect) {
+      setState(() {
+        _feedbackMessage = "Incorrect! The correct answer is: $correctAnswer";
+      });
+    } else {
+      // Clear any previous feedback.
+      setState(() {
+        _feedbackMessage = null;
+      });
+    }
 
     if (isCorrect) {
       // Increment Firestore points.
@@ -250,8 +280,8 @@ class _QuizPageState extends State<QuizPage> {
       duckRaceGame.moveDuckForPlayer(widget.currentPlayerId);
     }
 
-    // Next question after a short delay.
-    Future.delayed(const Duration(seconds: 2), () {
+    // Delay for 3 seconds to let the user see the feedback before moving on.
+    Future.delayed(const Duration(seconds: 3), () {
       _nextQuestion();
     });
   }
@@ -261,17 +291,19 @@ class _QuizPageState extends State<QuizPage> {
     if (currentIndex < questions.length - 1) {
       setState(() {
         currentIndex++;
+        // Reset answer state and feedback for the next question.
+        selectedAnswer = null;
+        isAnswerSelected = false;
+        _feedbackMessage = null;
         _loadQuestion();
-        // If we just reached the final question, show the finish line.
+
         if (currentIndex == questions.length - 1) {
           duckRaceGame.startFinishLineScrolling = true;
-          // Reset finish line position so it starts scrolling from finishLineBaseX.
           duckRaceGame.finishLine?.position.x = duckRaceGame.finishLineBaseX;
         }
       });
     } else {
       print('DEBUG: Reached last question!');
-      // We just answered the last question.
       duckRaceGame.startFinishLineScrolling = true;
       _timer.cancel();
       setState(() {
@@ -314,8 +346,10 @@ class _QuizPageState extends State<QuizPage> {
 
     // Update the leaderboard Firestore collection with this player's data.
     // Get the quiz title from the quizzes collection.
-    DocumentSnapshot quizDoc = await _firestore.collection('quizzes').doc(widget.quizId).get();
-    String quizTitle = (quizDoc.data() as Map<String, dynamic>)['title'] ?? 'Quiz Session';
+    DocumentSnapshot quizDoc =
+        await _firestore.collection('quizzes').doc(widget.quizId).get();
+    String quizTitle =
+        (quizDoc.data() as Map<String, dynamic>)['title'] ?? 'Quiz Session';
 
     // Write a new document into the "studentHistory" collection.
     await _firestore.collection('studentHistory').add({
@@ -353,8 +387,7 @@ class _QuizPageState extends State<QuizPage> {
       placeSuffix = "st";
     else if (placeNumber == 2)
       placeSuffix = "nd";
-    else if (placeNumber == 3)
-      placeSuffix = "rd";
+    else if (placeNumber == 3) placeSuffix = "rd";
 
     // Schedule showing the dialog after the current frame.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -376,12 +409,14 @@ class _QuizPageState extends State<QuizPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
                 ),
                 onPressed: () {
                   Navigator.of(ctx).pop(); // close the dialog.
                 },
-                child: Text("OK", style: GoogleFonts.poppins(color: Colors.white)),
+                child:
+                    Text("OK", style: GoogleFonts.poppins(color: Colors.white)),
               ),
             ],
           );
@@ -414,11 +449,14 @@ class _QuizPageState extends State<QuizPage> {
     _timer.cancel();
 
     // Retrieve the quiz title from the quizzes collection.
-    DocumentSnapshot quizDoc = await _firestore.collection('quizzes').doc(widget.quizId).get();
-    String quizTitle = (quizDoc.data() as Map<String, dynamic>)['title'] ?? 'Quiz Session';
+    DocumentSnapshot quizDoc =
+        await _firestore.collection('quizzes').doc(widget.quizId).get();
+    String quizTitle =
+        (quizDoc.data() as Map<String, dynamic>)['title'] ?? 'Quiz Session';
 
     // Create a new quiz session document in "quizSessions".
-    DocumentReference sessionRef = await _firestore.collection('quizSessions').add({
+    DocumentReference sessionRef =
+        await _firestore.collection('quizSessions').add({
       'quizTitle': quizTitle,
       'date': FieldValue.serverTimestamp(),
       'gameCode': widget.gameCode, // optional
@@ -482,10 +520,12 @@ class _QuizPageState extends State<QuizPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 40),
                       ),
                       onPressed: _stopQuiz,
-                      child: Text("Stop Quiz", style: GoogleFonts.poppins(color: Colors.white)),
+                      child: Text("Stop Quiz",
+                          style: GoogleFonts.poppins(color: Colors.white)),
                     ),
                     StreamBuilder<QuerySnapshot>(
                       stream: _firestore
@@ -519,7 +559,9 @@ class _QuizPageState extends State<QuizPage> {
 
             // 3) Middle Content.
             Expanded(
-              child: widget.isTeacher ? _buildTeacherLeaderboard() : _buildStudentQuiz(),
+              child: widget.isTeacher
+                  ? _buildTeacherLeaderboard()
+                  : _buildStudentQuiz(),
             ),
 
             // Show "Continue" button if the quiz is finished (for students).
@@ -530,12 +572,15 @@ class _QuizPageState extends State<QuizPage> {
                   onPressed: _showEndOfQuizDialog,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text("Continue", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: Text("Continue",
+                      style: GoogleFonts.poppins(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               ),
 
@@ -720,50 +765,90 @@ class _QuizPageState extends State<QuizPage> {
       );
     }
 
-    String questionIndexText = "${currentIndex + 1}/${questions.length}";
+    // e.g. "1/5"
+    final questionIndexText = "${currentIndex + 1}/${questions.length}";
+    // The question text
+    final questionText = currentQuestion;
 
     return Column(
       children: [
-        // Question index.
-        Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 5),
-          child: Text(
-            questionIndexText,
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontSize: 16,
-            ),
-          ),
-        ),
-        // Question text.
+        // Question Card
         Container(
-          padding: const EdgeInsets.all(10),
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.blueGrey,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Text(
-            currentQuestion,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontSize: 22,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Question index text
+              Text(
+                questionIndexText,
+                style: GoogleFonts.poppins(
+                  color: Colors.white70,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              // The question text
+              Text(
+                questionText,
+                textAlign: TextAlign.left,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
         ),
-        // Answers.
+
+        // Answers + Feedback area
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: currentAnswers.length,
-            itemBuilder: (context, index) {
-              String answer = currentAnswers[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: _buildAnswerButton(answer),
-              );
-            },
+          child: Column(
+            children: [
+              // The answer grid
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    // Increase childAspectRatio to make boxes bigger
+                    // e.g. 1.5, 1.8, or 2.0 depending on how large you want them
+                    childAspectRatio: 1.6,
+                    children: currentAnswers.map((answer) {
+                      return _buildAnswerButton(answer);
+                    }).toList(),
+                  ),
+                ),
+              ),
+
+              // Feedback message EXACTLY below the answers
+              if (_feedbackMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 4.0,
+                    left: 16.0,
+                    right: 16.0,
+                  ),
+                  child: Text(
+                    _feedbackMessage!,
+                    style: GoogleFonts.poppins(
+                      color: Colors.redAccent,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+            ],
           ),
         ),
       ],
@@ -772,9 +857,15 @@ class _QuizPageState extends State<QuizPage> {
 
   /// Bottom bar: Timer + user’s points.
   Widget _buildBottomBar() {
+    // Calculate fraction of time left (optional, if you want a partial fill).
+    // 15*60 = 900 seconds if you have a 15-minute timer.
+    double fractionLeft = _remainingSeconds / (15.0 * 60.0);
+    if (fractionLeft < 0) fractionLeft = 0; // safety clamp
+
     return Container(
-      color: Colors.blue.shade900,
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+      // Background color behind everything (if desired).
+      color: const Color(0xFF1A3A5F),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: StreamBuilder<DocumentSnapshot>(
         stream: _currentUserStream,
         builder: (context, snapshot) {
@@ -785,29 +876,89 @@ class _QuizPageState extends State<QuizPage> {
             userName = data['name'] ?? 'You';
             userPoints = data['points'] ?? 0;
           }
+
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // 1) Timer Pill
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4C9AFF), // Blue pill background
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // The time text, e.g. "1:25 min"
+                    Text(
+                      timerText,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    // Partial fill bar to show time left (optional)
+                    Stack(
+                      children: [
+                        // Background bar (fixed width)
+                        Container(
+                          width: 50,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        // Foreground fill
+                        Container(
+                          width:
+                              50 * fractionLeft, // fraction of the total width
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: Colors.yellow,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // 2) Name + Points
               Row(
                 children: [
-                  Icon(Icons.access_time, color: Colors.white),
-                  const SizedBox(width: 5),
+                  // Name in orange
                   Text(
-                    timerText,
+                    userName,
                     style: GoogleFonts.poppins(
+                      color: Colors.orange,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // White rectangle for points
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      fontSize: 16,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      "$userPoints Pts",
+                      style: GoogleFonts.poppins(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
-              ),
-              Text(
-                "$userName  $userPoints Pts",
-                style: GoogleFonts.poppins(
-                  color: Colors.yellow,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
               ),
             ],
           );
@@ -818,25 +969,53 @@ class _QuizPageState extends State<QuizPage> {
 
   /// A single answer button.
   Widget _buildAnswerButton(String answer) {
-    final correctAnswer = questions[currentIndex]['correctAnswer'];
-    bool isChosen = (selectedAnswer == answer);
-    bool isCorrect = (answer == correctAnswer);
-    Color buttonColor = Colors.orange;
-    if (selectedAnswer != null && isChosen) {
-      buttonColor = isCorrect ? const Color.fromARGB(255, 11, 203, 107) : const Color.fromARGB(255, 238, 48, 0);
+    // Use trimmed strings to avoid whitespace mismatches.
+    final correctAnswer =
+        questions[currentIndex]['correctAnswer'].toString().trim();
+    final trimmedAnswer = answer.toString().trim();
+    final chosenAnswer = selectedAnswer?.toString().trim();
+
+    // Default color for unselected answers.
+    Color buttonColor = const Color(0xFF476F95);
+
+    if (selectedAnswer != null) {
+      // If this button's answer equals the correct answer, set to green.
+      if (trimmedAnswer == correctAnswer) {
+        buttonColor = const Color.fromARGB(255, 11, 203, 107); // green
+      }
+      // But if this button is the one the user chose and it's not correct, override with red.
+      if (chosenAnswer == trimmedAnswer && trimmedAnswer != correctAnswer) {
+        buttonColor = const Color.fromARGB(255, 238, 48, 0); // red
+      }
     }
+
+    // Debug print to verify comparisons.
+    print(
+        "Rendering answer: '$trimmedAnswer' | selected: '$chosenAnswer' | correct: '$correctAnswer' | color: $buttonColor");
+
     return ElevatedButton(
+      key: ValueKey(trimmedAnswer), // Forces rebuild per answer.
+      onPressed: selectedAnswer != null ? null : () => _answerQuestion(answer),
       style: ElevatedButton.styleFrom(
         backgroundColor: buttonColor,
+        disabledBackgroundColor:
+            buttonColor, // Ensures the button keeps the color when disabled.
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+        // Increase vertical and horizontal padding to make the box larger.
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
       ),
-      onPressed: () => _answerQuestion(answer),
       child: Text(
         answer,
-        style: GoogleFonts.poppins(color: Colors.white),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontSize: 14, // Adjusted font size for better fit
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

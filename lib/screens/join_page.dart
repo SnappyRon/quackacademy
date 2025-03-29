@@ -141,7 +141,7 @@ class _JoinPageState extends ConsumerState<JoinPage> {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          backgroundColor:  const Color(0xFF476F95),
                           padding: EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -180,7 +180,7 @@ class _JoinPageState extends ConsumerState<JoinPage> {
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  backgroundColor: const Color(0xFF476F95),
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
@@ -215,7 +215,7 @@ class _JoinPageState extends ConsumerState<JoinPage> {
             fillColor: Colors.white,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.orange, width: 2),
+              borderSide: BorderSide(color: Color(0xFF1A3A5F), width: 2),
               borderRadius: BorderRadius.circular(10),
             ),
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),

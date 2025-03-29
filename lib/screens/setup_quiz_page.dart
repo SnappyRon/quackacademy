@@ -87,7 +87,7 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Please enter a quiz title."),
-          backgroundColor: Colors.red,
+          backgroundColor:  Color(0xFF476F95),
         ),
       );
       return;
@@ -199,7 +199,7 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
       child: Container(
         height: 50,
         decoration: BoxDecoration(
-          color: Colors.orange,
+          color: Color(0xFF1A3A5F),
           borderRadius: BorderRadius.circular(8),
         ),
         child: TextField(
@@ -224,7 +224,7 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
       child: Container(
         height: 60,
         decoration: BoxDecoration(
-          color: Colors.blue,
+          color: Color(0xFF476F95),
           borderRadius: BorderRadius.circular(8),
         ),
         child: TextField(
@@ -250,7 +250,7 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
       _answer3Controller,
       _answer4Controller
     ];
-    List<Color> colors = [Colors.amber, Colors.lightBlue, Colors.green, Colors.red];
+    List<Color> colors = [Color(0xFF476F95), Color(0xFF476F95), Color(0xFF476F95), Color(0xFF476F95)];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -349,7 +349,7 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
       child: Container(
         height: 70,
         decoration: BoxDecoration(
-          color: Colors.orange.shade200,
+          color: Color(0xFF1A3A5F),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -381,13 +381,13 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
                             "Slide ${index + 1}",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: _currentSlideIndex == index ? Colors.orange : Colors.black87,
+                              color: _currentSlideIndex == index ? Color(0xFF1A3A5F): Colors.black87,
                             ),
                           ),
                           if (_currentSlideIndex == index)
                             Padding(
                               padding: const EdgeInsets.only(top: 4),
-                              child: Icon(Icons.arrow_forward, color: Colors.orange, size: 18),
+                              child: Icon(Icons.arrow_forward, color: Color(0xFF1A3A5F), size: 18),
                             ),
                         ],
                       ),
@@ -401,7 +401,7 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
               child: ElevatedButton(
                 onPressed: _addNewSlide,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  backgroundColor:Color(0xFF476F95),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 ),
