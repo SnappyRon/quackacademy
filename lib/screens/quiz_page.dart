@@ -152,7 +152,7 @@ class _QuizPageState extends State<QuizPage> {
                 actions: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
+                      backgroundColor: Color(0xFF476F95),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -221,11 +221,15 @@ class _QuizPageState extends State<QuizPage> {
   /// Timer.
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       setState(() {
         if (_remainingSeconds > 0) {
           _remainingSeconds--;
         } else {
-          _timer.cancel();
+          timer.cancel();
           // End-of-quiz logic if needed.
         }
       });
@@ -282,6 +286,7 @@ class _QuizPageState extends State<QuizPage> {
 
     // Delay for 3 seconds to let the user see the feedback before moving on.
     Future.delayed(const Duration(seconds: 3), () {
+      if (!mounted) return;
       _nextQuestion();
     });
   }
@@ -405,7 +410,7 @@ class _QuizPageState extends State<QuizPage> {
             actions: [
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  backgroundColor: Color(0xFF476F95),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -516,7 +521,7 @@ class _QuizPageState extends State<QuizPage> {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
+                        backgroundColor: Color(0xFF476F95),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -571,7 +576,7 @@ class _QuizPageState extends State<QuizPage> {
                 child: ElevatedButton(
                   onPressed: _showEndOfQuizDialog,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor: Color(0xFF476F95),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
@@ -596,8 +601,8 @@ class _QuizPageState extends State<QuizPage> {
   /// Also detects points increments to move ducks for teacher.
   Widget _buildTop3Header() {
     return Container(
-      color: Colors.blue.shade800,
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      color: Color(0xFF1A3A5F),
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: StreamBuilder<QuerySnapshot>(
         stream: _top3Stream,
         builder: (context, snapshot) {
@@ -605,14 +610,18 @@ class _QuizPageState extends State<QuizPage> {
             return Center(
               child: Text(
                 "Loading top 3...",
-                style: GoogleFonts.poppins(color: Colors.white),
+                style: TextStyle(
+                  fontFamily: 'Jaro',
+                  color: Colors.white,
+                ),
               ),
             );
           }
+
           final docs = snapshot.data!.docs;
           List<Map<String, dynamic>> topPlayers = [];
 
-          // Convert docs to a List<Map> with id, name, points.
+          // Convert docs to a List<Map> with id, name, and points.
           for (var doc in docs) {
             var data = doc.data() as Map<String, dynamic>;
             data['id'] = doc.id;
@@ -622,14 +631,14 @@ class _QuizPageState extends State<QuizPage> {
           // Update ducks with the new top 3.
           duckRaceGame.updateDucks(topPlayers);
 
-          // Detect if any player's points increased => move duck.
+          // Check for points increases and move ducks accordingly.
           for (var p in topPlayers) {
             String playerId = p['id'];
             int newPoints = p['points'] ?? 0;
             int oldPoints = _previousPoints[playerId] ?? 0;
 
             if (newPoints > oldPoints) {
-              int diff = newPoints - oldPoints; // how many increments.
+              int diff = newPoints - oldPoints;
               for (int i = 0; i < diff; i++) {
                 duckRaceGame.moveDuckForPlayer(playerId);
               }
@@ -639,20 +648,20 @@ class _QuizPageState extends State<QuizPage> {
             _previousPoints[playerId] = newPoints;
           }
 
-          // Remove old entries from _previousPoints if they are no longer in top 3.
+          // Remove old entries from _previousPoints if they are no longer in the top 3.
           final top3Ids = topPlayers.map((p) => p['id']).toSet();
           _previousPoints.removeWhere((k, v) => !top3Ids.contains(k));
 
-          // Build the UI row.
+          // Build the UI row for top-3 players.
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: docs.map((doc) {
+            children: docs.asMap().entries.map((entry) {
+              final index = entry.key;
+              final doc = entry.value;
               final data = doc.data() as Map<String, dynamic>;
               final name = data['name'] ?? 'Player';
-              final points = data['points'] ?? 0;
-              final rankIndex = docs.indexOf(doc);
-              String placeLabel = "";
-              switch (rankIndex) {
+              String placeLabel;
+              switch (index) {
                 case 0:
                   placeLabel = "1st";
                   break;
@@ -662,31 +671,41 @@ class _QuizPageState extends State<QuizPage> {
                 case 2:
                   placeLabel = "3rd";
                   break;
+                default:
+                  placeLabel = "";
               }
-              return Column(
-                children: [
-                  Text(
-                    placeLabel,
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+              return Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      placeLabel,
+                      style: TextStyle(
+                        fontFamily: 'Jaro',
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                     ),
-                  ),
-                  Text(
-                    name,
-                    style: GoogleFonts.poppins(
-                      color: Colors.yellow,
-                      fontSize: 16,
+                    const SizedBox(width: 6),
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontFamily: 'Jaro',
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                     ),
-                  ),
-                  Text(
-                    "$points pts",
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               );
             }).toList(),
           );
@@ -936,7 +955,7 @@ class _QuizPageState extends State<QuizPage> {
                   Text(
                     userName,
                     style: GoogleFonts.poppins(
-                      color: Colors.orange,
+                      color: const Color.fromARGB(255, 254, 254, 254),
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),

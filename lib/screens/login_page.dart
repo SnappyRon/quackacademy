@@ -28,57 +28,53 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   /// Handle user login and update the loading state via Riverpod.
   Future<void> _login() async {
-    String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
+  String email = _emailController.text.trim();
+  String password = _passwordController.text.trim();
 
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Please enter email and password"),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    ref.read(loginLoadingProvider.notifier).state = true;
-
-    try {
-      // Optional: Sign out any previous user to ensure clean state.
-      await FirebaseAuth.instance.signOut();
-
-      // Attempt sign-in
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-      await _auth.currentUser?.reload(); // Refresh the user data explicitly
-
-      // Explicitly invalidate Riverpod providers here:
-      ref.invalidate(authStateChangesProvider);
-      ref.invalidate(userDataProvider);
-      ref.invalidate(profileDataProvider); // <--- ADD THIS LINE TOO
-
-      // Force a refresh of the current user data.
-      await _auth.currentUser?.reload();
-
-      // Invalidate authStateChangesProvider to force rebuilds.
-      ref.invalidate(authStateChangesProvider);
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MainNavigator(gameCode: 'defaultGameCode'),
-        ),
-      );
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message ?? "Login failed"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      ref.read(loginLoadingProvider.notifier).state = false;
-    }
+  if (email.isEmpty || password.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Please enter email and password"),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
   }
+
+  ref.read(loginLoadingProvider.notifier).state = true;
+
+  try {
+    // Optional but useful if you're switching accounts
+    await FirebaseAuth.instance.signOut();
+
+    // Sign in
+    await _auth.signInWithEmailAndPassword(email: email, password: password);
+
+    // No need to reload user or manually invalidate authStateChangesProvider
+
+    // Invalidate other app-specific providers to refresh state
+    ref.invalidate(userDataProvider);
+    ref.invalidate(profileDataProvider);
+
+    // Navigate to main screen
+    if (!context.mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MainNavigator(gameCode: 'defaultGameCode'),
+      ),
+    );
+  } on FirebaseAuthException catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(e.message ?? "Login failed"),
+        backgroundColor: Colors.red,
+      ),
+    );
+  } finally {
+    ref.read(loginLoadingProvider.notifier).state = false;
+  }
+}
 
   @override
   Widget build(BuildContext context) {

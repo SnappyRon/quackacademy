@@ -133,7 +133,7 @@ class HomeContent extends StatelessWidget {
             ),
           ],
         ),
-        const Icon(Icons.notifications, color: Colors.white, size: 28),
+        // const Icon(Icons.notifications, color: Colors.white, size: 28),
       ],
     );
   }

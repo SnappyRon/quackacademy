@@ -12,9 +12,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Provider to fetch current user profile data from Firestore.
+final authStateChangesProvider = StreamProvider<User?>(
+  (ref) => FirebaseAuth.instance.authStateChanges(),
+);
+
 final profileDataProvider = StreamProvider<Map<String, dynamic>>((ref) {
-  final user = FirebaseAuth.instance.currentUser;
-  print("profileDataProvider: current user: $user");
+  final user = ref.watch(authStateChangesProvider).asData?.value;
+
   if (user != null) {
     return FirebaseFirestore.instance
         .collection('users')
@@ -27,6 +31,8 @@ final profileDataProvider = StreamProvider<Map<String, dynamic>>((ref) {
       return doc.data() ?? {};
     });
   }
+
+  // If user is null (signed out), return an empty map
   return Stream.value({});
 });
 
@@ -58,6 +64,24 @@ final profileImageProvider =
 
 /// Provider to manage settings menu toggle.
 final showSettingsMenuProvider = StateProvider<bool>((ref) => false);
+
+final enrolledCourseCountProvider = StreamProvider<int>((ref) {
+  final authAsync = ref.watch(authStateChangesProvider);
+  return authAsync.when(
+    data: (user) {
+      if (user == null) {
+        return Stream.value(0);
+      }
+      return FirebaseFirestore.instance
+          .collectionGroup('enrollments')
+          .where('userId', isEqualTo: user.uid)
+          .snapshots()
+          .map((snapshot) => snapshot.size);
+    },
+    loading: () => Stream.value(0),
+    error: (_, __) => Stream.value(0),
+  );
+});
 
 class ProfilePage extends ConsumerWidget {
   @override
@@ -99,6 +123,11 @@ class ProfilePage extends ConsumerWidget {
         final level = (data['level'] ?? 1);
         final exp = (data['exp'] ?? 0);
 
+        if (user == null) {
+          return Scaffold(
+            body: Center(child: Text("No user signed in")),
+          );
+        }
         if (role.toLowerCase() == 'teacher') {
           return _buildTeacherProfile(
               context, ref, fullName, username, role, user!.uid);
@@ -258,7 +287,16 @@ class ProfilePage extends ConsumerWidget {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
                                     children: [
-                                      _buildStats("Course", "4"),
+                                      ref
+                                          .watch(enrolledCourseCountProvider)
+                                          .when(
+                                            data: (count) => _buildStats(
+                                                "Courses", "$count"),
+                                            loading: () =>
+                                                _buildStats("Courses", "..."),
+                                            error: (_, __) =>
+                                                _buildStats("Courses", "Err"),
+                                          ),
                                       _buildStats("EXP", "$exp"),
                                       _buildStats("Level", "$level"),
                                     ],
@@ -621,27 +659,27 @@ Widget _buildTeacherProfile(
   );
 }
 
-Widget _buildStudentProfile(
-  BuildContext context,
-  WidgetRef ref,
-  String fullName,
-  String username,
-  String role,
-  int level,
-  int exp,
-) {
-  return Scaffold(
-    backgroundColor: const Color(0xFF1A3A5F),
-    body: SafeArea(
-      child: Column(
-        children: [
-          // 👇 Use your existing student UI code here!
-          // I recommend copy/pasting everything you already had here before we did role checking
-        ],
-      ),
-    ),
-  );
-}
+// Widget _buildStudentProfile(
+//   BuildContext context,
+//   WidgetRef ref,
+//   String fullName,
+//   String username,
+//   String role,
+//   int level,
+//   int exp,
+// ) {
+//   return Scaffold(
+//     backgroundColor: const Color(0xFF1A3A5F),
+//     body: SafeArea(
+//       child: Column(
+//         children: [
+//           // 👇 Use your existing student UI code here!
+//           // I recommend copy/pasting everything you already had here before we did role checking
+//         ],
+//       ),
+//     ),
+//   );
+// }
 
 Widget _buildAchievements() {
   return Container(
@@ -800,21 +838,19 @@ Widget _buildCourseCard(
 
 void _showEnrolledLearners(
     String courseId, String courseTitle, BuildContext context) async {
-  final courseDoc = await FirebaseFirestore.instance
+  // Query the enrollments subcollection
+  final enrollmentQuerySnapshot = await FirebaseFirestore.instance
       .collection('courses')
       .doc(courseId)
+      .collection('enrollments')
       .get();
 
-  final learnerIds = List<String>.from(courseDoc['learners'] ?? []);
   List<Map<String, dynamic>> learnerProfiles = [];
 
-  for (final uid in learnerIds) {
-    final userDoc =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
-
-    if (userDoc.exists) {
-      learnerProfiles.add(userDoc.data()!);
-    }
+  // Collect all enrollment data
+  for (final enrollmentDoc in enrollmentQuerySnapshot.docs) {
+    final enrollmentData = enrollmentDoc.data();
+    learnerProfiles.add(enrollmentData);
   }
 
   showDialog(
@@ -830,7 +866,7 @@ void _showEnrolledLearners(
                 itemCount: learnerProfiles.length,
                 itemBuilder: (context, index) {
                   final learner = learnerProfiles[index];
-                  final username = learner['username'] ?? 'No Name';
+                  final username = learner['name'] ?? 'No Name';
                   final email = learner['email'] ?? 'No Email';
 
                   return ListTile(

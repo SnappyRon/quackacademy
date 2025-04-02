@@ -88,7 +88,7 @@ class AuthService {
   }
 
   /// Sign-out method with optional Riverpod provider invalidation.
-  Future<void> signOut({WidgetRef? ref}) async {
+Future<void> signOut({WidgetRef? ref}) async {
   await _auth.signOut();
   print("✅ User signed out");
 
@@ -96,14 +96,12 @@ class AuthService {
   await prefs.remove('profileImagePath');
 
   if (ref != null) {
-    ref.invalidate(authStateChangesProvider);
+    // Keep invalidating local loading and data providers
     ref.invalidate(signUpLoadingProvider);
     ref.invalidate(loginLoadingProvider);
-
-    // Add these to ensure data fully refreshes
     ref.invalidate(userDataProvider);
     ref.invalidate(profileDataProvider);
-    print("✅ ALL user providers invalidated after sign-out");
+    print("✅ Providers invalidated after sign-out (except authStateChangesProvider)");
   }
 }
 

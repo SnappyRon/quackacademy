@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quackacademy/game/duck_race_game.dart';
+import 'package:quackacademy/screens/courses/java_course/java_course_page.dart';
 import 'package:quackacademy/screens/learn_page.dart';
+import 'package:quackacademy/splash_screen.dart';
 import 'firebase_options.dart';
 import 'package:quackacademy/screens/login_page.dart';
 import 'package:quackacademy/screens/signup_page.dart';
@@ -56,18 +58,18 @@ class QuackAcademyApp extends StatelessWidget {
         primarySwatch: Colors.orange,
       ),
       // Use AuthWrapper to decide which page to show based on auth state.
-      home: AuthWrapper(),
+      home: SplashScreen(),
       routes: {
         '/login': (context) => LoginPage(),
         '/signup': (context) => SignUpPage(),
         '/home': (context) => HomePage(),
         '/join': (context) => JoinPage(), // ✅ Added JoinPage route
         '/profile': (context) => ProfilePage(), // ✅ ProfilePage route
-        '/information': (context) =>
-            InformationPage(), // ✅ InformationPage route
+        '/information': (context) => InformationPage(), // ✅ InformationPage route
         '/password': (context) => PasswordPage(),
         '/learn': (context) => LearnPage(), // ✅ LearnPage route
         '/main': (context) => MainNavigator(gameCode: 'defaultGameCode'),
+        '/JavaCourseSelectionPage': (context) => JavaCourseSelectionPage(),
       },
     );
   }
@@ -84,13 +86,15 @@ class AuthWrapper extends ConsumerWidget {
     return authState.when(
       data: (user) {
         if (user != null) {
-          return MainNavigator(key: ValueKey(user.uid), gameCode: 'defaultGameCode');
+          return MainNavigator(
+              key: ValueKey(user.uid), gameCode: 'defaultGameCode');
         } else {
           return LoginPage();
         }
       },
       loading: () => Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (error, stack) => Scaffold(body: Center(child: Text('Something went wrong!'))),
+      error: (error, stack) =>
+          Scaffold(body: Center(child: Text('Something went wrong!'))),
     );
   }
 }

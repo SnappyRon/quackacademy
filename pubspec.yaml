@@ -8,6 +8,7 @@ environment:
   sdk: ^3.6.0
 
 dependencies:
+  animated_splash_screen: ^1.3.0
   flutter:
     sdk: flutter
   google_fonts: ^6.1.0
@@ -21,6 +22,7 @@ dependencies:
   flame: ^1.25.0
   image_picker: ^0.8.7+3
   flutter_riverpod: ^2.3.6
+  lottie: ^3.3.0
   
 
 dev_dependencies:
@@ -71,6 +73,8 @@ flutter:
     - "assets/images/game_assets/Finish Line Layer.png"
     - "assets/images/game_assets/Start Line Layer.png"
     - assets/images/duckfavicon.png
+    - assets/images/iconduck.png
+    - "assets/images/Lottie/Animation - 1743523201612.json"
 
   fonts:
     - family: Jaro

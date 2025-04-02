@@ -2,22 +2,35 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:quackacademy/models/course_model.dart';
-import 'courses/java_course/java_course_page.dart';
 
 final coursesProvider = StreamProvider<List<CourseModel>>((ref) {
-  return FirebaseFirestore.instance
-      .collection('courses')
-      .orderBy('title')
-      .snapshots()
-      .map((snapshot) =>
-          snapshot.docs.map((doc) => CourseModel.fromDoc(doc)).toList());
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) {
+    // Return an empty stream if not authenticated.
+    return Stream.value([]);
+  } else {
+    return FirebaseFirestore.instance
+        .collection('courses')
+        .orderBy('title')
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => CourseModel.fromDoc(doc)).toList());
+  }
 });
 
 class LearnPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return Scaffold(
+        body: Center(
+          child: Text("Please sign in to view courses"),
+        ),
+      );
+    }
+
     final coursesAsync = ref.watch(coursesProvider);
 
     return Scaffold(
@@ -36,21 +49,12 @@ class LearnPage extends ConsumerWidget {
                     return ListView(
                       children: [
                         for (final course in courses)
-                          _buildCourseCard(
-                            context,
-                            course,
-                            isAddButton: false,
-                          ),
-                        _buildCourseCard(
-                          context,
-                          null,
-                          isAddButton: true,
-                        ),
+                          _buildCourseCard(context, course, isAddButton: false),
+                        _buildCourseCard(context, null, isAddButton: true),
                       ],
                     );
                   },
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
+                  loading: () => const Center(child: CircularProgressIndicator()),
                   error: (e, _) => Center(child: Text("Error: $e")),
                 ),
               ),
@@ -64,10 +68,10 @@ class LearnPage extends ConsumerWidget {
   Widget _buildHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
+      children: const [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Text(
               "Courses",
               style: TextStyle(
@@ -82,7 +86,7 @@ class LearnPage extends ConsumerWidget {
             ),
           ],
         ),
-        const Icon(Icons.school, color: Colors.white, size: 28),
+        Icon(Icons.school, color: Colors.white, size: 28),
       ],
     );
   }
@@ -106,29 +110,46 @@ class LearnPage extends ConsumerWidget {
                 'assets/images/java.png', // Replace if dynamic
                 width: 40,
                 height: 40,
-                errorBuilder: (context, error, stackTrace) => const Icon(
-                  Icons.image_not_supported,
-                  color: Colors.red,
-                  size: 40,
-                ),
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.image_not_supported, color: Colors.red, size: 40),
               ),
         title: Text(
           title,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(subtitle),
-        onTap: () {
+        onTap: () async {
           if (isAddButton) {
             _showAddCourseDialog(context);
           } else {
-            _showEnrollConfirmation(context, course!);
+            // Check if the student is already enrolled in the course.
+            final user = FirebaseAuth.instance.currentUser;
+            if (user == null) return;
+            final enrollmentDoc = await FirebaseFirestore.instance
+                .collection('courses')
+                .doc(course!.id)
+                .collection('enrollments')
+                .doc(user.uid)
+                .get();
+
+            if (enrollmentDoc.exists) {
+              // Already enrolled: navigate directly to the course content page.
+              Navigator.pushNamed(
+                context,
+                '/JavaCourseSelectionPage',
+                arguments: course,
+              );
+            } else {
+              // Not enrolled: show enrollment confirmation dialog.
+              _showEnrollConfirmation(context, course);
+            }
           }
         },
       ),
     );
   }
 
-  /// 🎯 Handles course creation popup
+  /// Course creation dialog.
   void _showAddCourseDialog(BuildContext context) {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
@@ -194,7 +215,7 @@ class LearnPage extends ConsumerWidget {
     );
   }
 
-  /// 📌 Enroll confirmation for students
+  /// Enrollment confirmation dialog for students.
   void _showEnrollConfirmation(BuildContext context, CourseModel course) {
     showDialog(
       context: context,
@@ -219,18 +240,39 @@ class LearnPage extends ConsumerWidget {
               final user = FirebaseAuth.instance.currentUser;
               if (user == null) return;
 
-              final ref = FirebaseFirestore.instance
-                  .collection('courses')
-                  .doc(course.id);
+              // Retrieve the user's profile info from Firestore.
+              final userDoc = await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(user.uid)
+                  .get();
+              final learnerName = userDoc.data()?['username'] ?? 'No Name';
+              final learnerEmail = userDoc.data()?['email'] ?? 'No Email';
 
-              await ref.update({
-                'learners': FieldValue.arrayUnion([user.uid])
+              // Create the enrollment document in the subcollection using the student's UID.
+              final enrollmentRef = FirebaseFirestore.instance
+                  .collection('courses')
+                  .doc(course.id)
+                  .collection('enrollments')
+                  .doc(user.uid);
+
+              await enrollmentRef.set({
+                'userId': user.uid, // Must match the security rule (doc id == user.uid)
+                'name': learnerName,
+                'email': learnerEmail,
+                'enrolledAt': FieldValue.serverTimestamp(),
               });
 
               Navigator.pop(context);
 
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("You've enrolled in ${course.title}!")),
+              );
+
+              // After enrollment, navigate to the JavaCourseSelectionPage.
+              Navigator.pushNamed(
+                context,
+                '/JavaCourseSelectionPage',
+                arguments: course,
               );
             },
             child: const Text("Enroll"),
