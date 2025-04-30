@@ -117,18 +117,27 @@ class CreateSessionPage extends ConsumerWidget {
     return Column(
       children: [
         Image.asset(
-          'assets/images/duck_logo.png', // Ensure this exists.
+          'assets/images/duck_logo2.png', // Ensure this exists.
           height: 120,
         ),
-        const SizedBox(height: 10),
         const Text(
-          "GET READY TO JOIN!\nQUACKACADEMY",
+          "Create a Quiz Room",
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 24,
+            fontFamily: 'Jaro',
+            fontSize: 45,
             fontWeight: FontWeight.w900,
             color: Colors.white,
-            letterSpacing: 1.5,
+          ),
+        ),
+        const Text(
+          "Build a quiz and invite students with one tap.",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Jaro',
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            color: Colors.white,
           ),
         ),
       ],

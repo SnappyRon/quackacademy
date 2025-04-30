@@ -23,6 +23,7 @@ dependencies:
   image_picker: ^0.8.7+3
   flutter_riverpod: ^2.3.6
   lottie: ^3.3.0
+  flutter_screenutil: ^5.9.3
   
 
 dev_dependencies:
@@ -35,7 +36,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/duck_logo.png
+    - assets/images/duck_logo2.png
     - assets/images/Home.png
     - assets/images/Courses.png
     - assets/images/Leaderboard.png
@@ -72,7 +73,7 @@ flutter:
     - "assets/images/game_assets/duck(15FPS).png"
     - "assets/images/game_assets/Finish Line Layer.png"
     - "assets/images/game_assets/Start Line Layer.png"
-    - assets/images/duckfavicon.png
+    - assets/images/duck_favicon7.png
     - assets/images/iconduck.png
     - "assets/images/Lottie/Animation - 1743523201612.json"
 
@@ -84,4 +85,4 @@ flutter:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/images/duckfavicon.png"
+  image_path: "assets/images/duck_favicon7.png"

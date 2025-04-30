@@ -188,7 +188,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                   alignment: Alignment.topLeft,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF1A3A5F),
+                      backgroundColor: Color(0xFF476F95),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -200,24 +200,24 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                 ),
                 const SizedBox(height: 10),
                 // Duck Logo
-                Image.asset('assets/images/duck_logo.png', height: 100),
+                Image.asset('assets/images/duck_logo2.png', height: 100),
                 const SizedBox(height: 10),
                 // App Name
-                const Text(
-                  "QUACKADEMY",
+                Text(
+                  "QuackAcademy",
                   style: TextStyle(
-                    fontSize: 28,
+                    fontFamily: 'Jaro',
+                    fontSize: 45,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
-                    letterSpacing: 1.5,
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Sign-up Title
-                const Text(
-                  "Sign-up",
+                Text(
+                  "Create Your Account",
                   style: TextStyle(
-                    fontSize: 22,
+                    fontFamily: 'Jaro',
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -394,7 +394,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                               width: double.infinity,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFF1A3A5F),
+                                  backgroundColor: Color(0xFF476F95),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),

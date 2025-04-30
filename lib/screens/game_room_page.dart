@@ -195,17 +195,18 @@ class _GameRoomPageState extends ConsumerState<GameRoomPage> {
     return Column(
       children: [
         SizedBox(height: 20),
-        Image.asset('assets/images/duck_logo.png', height: 60),
+        Image.asset('assets/images/duck_logo2.png', height: 60),
         SizedBox(height: 10),
         Text(
-          "QUACKACADEMY",
+          "Quiz Lobby",
           style: TextStyle(
-            fontSize: 24,
+            fontFamily: 'Jaro',
+            fontSize: 45,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        SizedBox(height: 10),
+      
       ],
     );
   }
@@ -221,7 +222,7 @@ class _GameRoomPageState extends ConsumerState<GameRoomPage> {
       ),
       child: Center(
         child: Text(
-          "Role: ${widget.playerName}",
+          "You’re hosting as: ${widget.playerName}",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),

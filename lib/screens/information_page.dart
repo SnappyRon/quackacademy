@@ -13,7 +13,7 @@ class InformationPage extends ConsumerStatefulWidget {
 
 class _InformationPageState extends ConsumerState<InformationPage> {
   final _fullNameController = TextEditingController();
-  final _nicknameController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _birthDateController = TextEditingController();
   final _otpController = TextEditingController();
@@ -26,6 +26,17 @@ class _InformationPageState extends ConsumerState<InformationPage> {
     _fetchUserInfo();
   }
 
+  /// Custom style based on the design image.
+  final ButtonStyle customButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: Color(0xFF5C7EA4),
+    foregroundColor: Colors.white,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+    elevation: 0,
+  );
+
   /// Fetch existing user data from Firestore.
   void _fetchUserInfo() async {
     if (user != null) {
@@ -37,8 +48,10 @@ class _InformationPageState extends ConsumerState<InformationPage> {
 
         if (userDoc.exists) {
           setState(() {
-            _fullNameController.text = userDoc['fullName'] ?? '';
-            _nicknameController.text = userDoc['nickname'] ?? '';
+            String firstName = userDoc['firstName'] ?? '';
+            String lastName = userDoc['lastName'] ?? '';
+            _fullNameController.text = "$firstName $lastName".trim();
+            _usernameController.text = userDoc['username'] ?? '';
             _emailController.text = userDoc['email'] ?? user!.email!;
             _birthDateController.text = userDoc['birthDate'] ?? '';
           });
@@ -61,10 +74,16 @@ class _InformationPageState extends ConsumerState<InformationPage> {
           await user!.updateEmail(_emailController.text.trim());
         }
 
+        // Split full name into first and last name
+        List<String> nameParts = _fullNameController.text.trim().split(" ");
+        String firstName = nameParts.isNotEmpty ? nameParts.first : "";
+        String lastName = nameParts.length > 1 ? nameParts.sublist(1).join(" ") : "";
+
         /// Update Firestore Document.
         await FirebaseFirestore.instance.collection('users').doc(user!.uid).update({
-          'fullName': _fullNameController.text.trim(),
-          'nickname': _nicknameController.text.trim(),
+          'firstName': firstName,
+          'lastName': lastName,
+          'username': _usernameController.text.trim(),
           'email': _emailController.text.trim(),
           'birthDate': _birthDateController.text.trim(),
         });
@@ -106,13 +125,16 @@ class _InformationPageState extends ConsumerState<InformationPage> {
               /// Back Button
               Align(
                 alignment: Alignment.topLeft,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1A3A5F)),
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("Back"),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: ElevatedButton(
+                    style: customButtonStyle,
+                    onPressed: () => Navigator.pop(context),
+                    child: Text("Back"),
+                  ),
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
 
               /// Title
               Text(
@@ -127,20 +149,20 @@ class _InformationPageState extends ConsumerState<InformationPage> {
                 child: Column(
                   children: [
                     _buildTextField("Full Name", _fullNameController),
-                    _buildTextField("Nickname", _nicknameController),
+                    _buildTextField("Username", _usernameController),
                     _buildTextField("Email", _emailController),
                     _buildTextField("Birth Date", _birthDateController),
-                    _buildTextField("OTP CODE", _otpController), // Optional for added security
+                    _buildTextField("OTP CODE", _otpController),
 
                     SizedBox(height: 20),
 
                     /// Confirm Button
                     isLoading
-                        ? CircularProgressIndicator(color: Color(0xFF1A3A5F))
+                        ? CircularProgressIndicator(color: Color(0xFF5C7EA4))
                         : ElevatedButton(
                             onPressed: _updateInfo,
-                            style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1A3A5F)),
-                            child: Text("Confirm", style: TextStyle(color: Colors.white, fontSize: 18)),
+                            style: customButtonStyle,
+                            child: Text("Confirm", style: TextStyle(fontSize: 18)),
                           ),
                   ],
                 ),
@@ -152,19 +174,34 @@ class _InformationPageState extends ConsumerState<InformationPage> {
     );
   }
 
-  /// Reusable TextField Builder.
-  Widget _buildTextField(String label, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+Widget _buildTextField(String label, TextEditingController controller) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 6),
+    child: TextField(
+      controller: controller,
+      style: TextStyle(fontSize: 16, color: Colors.black), // Input text
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          fontSize: 16,
+          color: Colors.grey[700],
         ),
+        floatingLabelStyle: TextStyle(
+          color: Colors.white, // Bright when it floats up
+          backgroundColor: Color(0xFF1A3A5F), // Match your dark theme
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+        floatingLabelBehavior: FloatingLabelBehavior.always, // Keeps it floating
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       ),
-    );
-  }
+    ),
+  );
+}
+
 }

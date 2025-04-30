@@ -143,7 +143,7 @@ Future<void> _loadLessonCompletion() async {
             // Java Quarter 2
             _quarterCard(
               title: "Java Quarter 2",
-              description: "Apply Basics of Java Language",
+              description: "Basics of Java Language",
               iconPath: "assets/images/javaicon2.png",
               isCompleted: _isJavaQ2Completed,
               isLocked: isQ2Locked, // Q2 locked if Q1 not done

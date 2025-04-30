@@ -10,6 +10,7 @@ import 'package:quackacademy/screens/signup_page.dart';
 import 'package:quackacademy/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart'; 
 
 /// Provider to fetch current user profile data from Firestore.
 final authStateChangesProvider = StreamProvider<User?>(
@@ -575,9 +576,6 @@ Widget _buildTeacherProfile(
 
                 // Stats Section
                 buildDynamicStats(uid),
-
-                const SizedBox(height: 20),
-                _buildAchievements(),
                 const SizedBox(height: 20),
                 _buildYourCourses(uid),
                 const SizedBox(height: 20),
@@ -659,32 +657,13 @@ Widget _buildTeacherProfile(
   );
 }
 
-// Widget _buildStudentProfile(
-//   BuildContext context,
-//   WidgetRef ref,
-//   String fullName,
-//   String username,
-//   String role,
-//   int level,
-//   int exp,
-// ) {
-//   return Scaffold(
-//     backgroundColor: const Color(0xFF1A3A5F),
-//     body: SafeArea(
-//       child: Column(
-//         children: [
-//           // 👇 Use your existing student UI code here!
-//           // I recommend copy/pasting everything you already had here before we did role checking
-//         ],
-//       ),
-//     ),
-//   );
-// }
 
-Widget _buildAchievements() {
+
+Widget _buildAchievements(int courseCount) {
   return Container(
-    margin: const EdgeInsets.symmetric(horizontal: 16),
-    padding: const EdgeInsets.all(16),
+    width: double.infinity,
+    margin: EdgeInsets.symmetric(horizontal: 16),
+    padding: EdgeInsets.all(16),
     decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(12),
@@ -692,24 +671,45 @@ Widget _buildAchievements() {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Achievements",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 12),
+        Text(
+          "Achievements",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        SizedBox(height: 12),
         Wrap(
           spacing: 12,
           runSpacing: 12,
-          children: const [
-            _Badge(title: "First Course Published", unlocked: true),
-            _Badge(title: "100 Students Enrolled", unlocked: true),
-            _Badge(title: "Top Rated Instructor", unlocked: true),
-            _Badge(title: "500 Students Enrolled", unlocked: false),
-            _Badge(title: "10 Courses Created", unlocked: false),
+          children: [
+            _Badge(
+              title: "First Course Published",
+              unlocked: courseCount >= 1,
+            ),
+            _Badge(
+              title: "10 Courses Created",
+              unlocked: courseCount >= 10,
+            ),
+            _Badge(
+              title: "100 Students Enrolled",
+              unlocked: false, // you can also calculate this later
+            ),
+            _Badge(
+              title: "500 Students Enrolled",
+              unlocked: false,
+            ),
+            _Badge(
+              title: "Top Rated Instructor",
+              unlocked: false,
+            ),
           ],
-        )
+        ),
       ],
     ),
   );
 }
+
 
 class _Badge extends StatelessWidget {
   final String title;
@@ -925,21 +925,28 @@ Widget buildDynamicStats(String teacherUid) {
         return sum + learners.length;
       });
 
-      return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildStats("Courses Created", "$totalCourses"),
-            _buildStats("Learners Enrolled", "$totalLearners"),
-          ],
-        ),
+      return Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStats("Courses Created", "$totalCourses"),
+                _buildStats("Learners Enrolled", "$totalLearners"),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildAchievements(totalCourses),
+        ],
       );
     },
   );
 }
+

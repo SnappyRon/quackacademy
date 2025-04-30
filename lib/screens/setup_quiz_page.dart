@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SetupQuizPage extends StatefulWidget {
   @override
@@ -87,7 +88,7 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Please enter a quiz title."),
-          backgroundColor:  Color(0xFF476F95),
+          backgroundColor: Color(0xFF476F95),
         ),
       );
       return;
@@ -104,7 +105,6 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
       for (var slide in _slides) {
         final correctIndex = slide['correctAnswerIndex'] as int;
         final answersList = slide['answers'] as List<String>;
-
         final finalCorrectAnswer = answersList[correctIndex];
 
         await quizRef.collection('slides').add({
@@ -125,68 +125,59 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
     }
   }
 
-  
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF1A3A5F),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Top Row: CANCEL + Title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Text(
-                      "CANCEL",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        "QUACKACADEMY",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+        child: SingleChildScrollView(
+          // Adding bottom padding to ensure no overflow occurs
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 20.h),
+            child: Column(
+              children: [
+                // Top Row: CANCEL + Title
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Text(
+                          "CANCEL",
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.sp),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+
+                // Orange title bar for Quiz Title
+                _buildQuizTitleInput(),
+                SizedBox(height: 10.h),
+
+                // Big Blue Rectangle for Question
+                _buildQuestionInput(),
+                SizedBox(height: 10.h),
+
+                // 4 Answer Boxes (with neon green radio buttons)
+                _buildAnswerBoxes(),
+                SizedBox(height: 10.h),
+
+                // Optional Preview
+                _buildPreviewArea(),
+                SizedBox(height: 10.h),
+
+                // Slides Row + Add Slide + Save
+                _buildSlideControls(),
+                SizedBox(height: 10.h),
+
+                // Submit Quiz Button
+                _buildSubmitButton(),
+                SizedBox(height: 10.h),
+              ],
             ),
-
-            // Orange title bar for Quiz Title
-            _buildQuizTitleInput(),
-            SizedBox(height: 10),
-
-            // Big Blue Rectangle for Question
-            _buildQuestionInput(),
-            SizedBox(height: 10),
-
-            // 4 Answer Boxes (with neon green radio buttons)
-            _buildAnswerBoxes(),
-            SizedBox(height: 10),
-
-            // Optional Preview
-            _buildPreviewArea(),
-            SizedBox(height: 10),
-
-            // Slides Row + Add Slide + Save
-            _buildSlideControls(),
-            SizedBox(height: 10),
-
-            // Submit Quiz Button
-            _buildSubmitButton(),
-            SizedBox(height: 10),
-          ],
+          ),
         ),
       ),
     );
@@ -195,22 +186,22 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
   /// Build the Quiz Title Input Field
   Widget _buildQuizTitleInput() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Container(
-        height: 50,
+        height: 50.h,
         decoration: BoxDecoration(
           color: Color(0xFF1A3A5F),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
         ),
         child: TextField(
           controller: _quizTitleController,
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18.sp),
           decoration: InputDecoration(
             hintText: "Enter Quiz Title...",
-            hintStyle: TextStyle(color: Colors.white70),
+            hintStyle: TextStyle(color: Colors.white70, fontSize: 18.sp),
             border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(vertical: 14),
+            contentPadding: EdgeInsets.symmetric(vertical: 14.h),
           ),
         ),
       ),
@@ -220,22 +211,22 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
   /// Build the Question Input Field
   Widget _buildQuestionInput() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Container(
-        height: 60,
+        height: 60.h,
         decoration: BoxDecoration(
           color: Color(0xFF476F95),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
         ),
         child: TextField(
           controller: _questionController,
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp),
           decoration: InputDecoration(
             hintText: "Type your Question here",
-            hintStyle: TextStyle(color: Colors.white70),
+            hintStyle: TextStyle(color: Colors.white70, fontSize: 16.sp),
             border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(vertical: 14),
+            contentPadding: EdgeInsets.symmetric(vertical: 14.h),
           ),
         ),
       ),
@@ -250,16 +241,21 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
       _answer3Controller,
       _answer4Controller
     ];
-    List<Color> colors = [Color(0xFF476F95), Color(0xFF476F95), Color(0xFF476F95), Color(0xFF476F95)];
+    List<Color> colors = [
+      Color(0xFF476F95),
+      Color(0xFF476F95),
+      Color(0xFF476F95),
+      Color(0xFF476F95)
+    ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         children: List.generate(4, (index) {
           return Row(
             children: [
               Radio<int>(
-                activeColor: Colors.greenAccent, // neon green
+                activeColor: Colors.greenAccent,
                 value: index,
                 groupValue: _selectedCorrectAnswerIndex,
                 onChanged: (int? value) {
@@ -270,21 +266,21 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
               ),
               Expanded(
                 child: Container(
-                  height: 60,
-                  margin: const EdgeInsets.only(bottom: 8),
+                  height: 60.h,
+                  margin: EdgeInsets.only(bottom: 8.h),
                   decoration: BoxDecoration(
                     color: colors[index],
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: TextField(
                     controller: controllers[index],
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp),
                     decoration: InputDecoration(
                       hintText: "Answer ${index + 1}",
-                      hintStyle: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
+                      hintStyle: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 16.sp),
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(vertical: 16),
+                      contentPadding: EdgeInsets.symmetric(vertical: 16.h),
                     ),
                   ),
                 ),
@@ -313,29 +309,29 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Preview Slide',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Colors.white),
             ),
-            SizedBox(height: 8),
-            Text('Question: ${_questionController.text}', style: TextStyle(color: Colors.white)),
-            SizedBox(height: 4),
-            Text('A: ${answers[0]}', style: TextStyle(color: Colors.white)),
-            Text('B: ${answers[1]}', style: TextStyle(color: Colors.white)),
-            Text('C: ${answers[2]}', style: TextStyle(color: Colors.white)),
-            Text('D: ${answers[3]}', style: TextStyle(color: Colors.white)),
-            SizedBox(height: 4),
-            Text('Chosen (Radio): $chosenRadioAnswer', style: TextStyle(color: Colors.white)),
+            SizedBox(height: 8.h),
+            Text('Question: ${_questionController.text}', style: TextStyle(color: Colors.white, fontSize: 14.sp)),
+            SizedBox(height: 4.h),
+            Text('A: ${answers[0]}', style: TextStyle(color: Colors.white, fontSize: 14.sp)),
+            Text('B: ${answers[1]}', style: TextStyle(color: Colors.white, fontSize: 14.sp)),
+            Text('C: ${answers[2]}', style: TextStyle(color: Colors.white, fontSize: 14.sp)),
+            Text('D: ${answers[3]}', style: TextStyle(color: Colors.white, fontSize: 14.sp)),
+            SizedBox(height: 4.h),
+            Text('Correct Answer (Radio): $chosenRadioAnswer', style: TextStyle(color: Colors.white, fontSize: 14.sp)),
           ],
         ),
       ),
@@ -345,12 +341,12 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
   /// Slides Row + Add Slide + Save
   Widget _buildSlideControls() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Container(
-        height: 70,
+        height: 70.h,
         decoration: BoxDecoration(
           color: Color(0xFF1A3A5F),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
         ),
         child: Row(
           children: [
@@ -368,11 +364,11 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
                       });
                     },
                     child: Container(
-                      width: 70,
-                      margin: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                      width: 70.w,
+                      margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
                       decoration: BoxDecoration(
                         color: _currentSlideIndex == index ? Colors.white : Colors.white54,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -381,13 +377,14 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
                             "Slide ${index + 1}",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: _currentSlideIndex == index ? Color(0xFF1A3A5F): Colors.black87,
+                              color: _currentSlideIndex == index ? Color(0xFF1A3A5F) : Colors.black87,
+                              fontSize: 14.sp,
                             ),
                           ),
                           if (_currentSlideIndex == index)
                             Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: Icon(Icons.arrow_forward, color: Color(0xFF1A3A5F), size: 18),
+                              padding: EdgeInsets.only(top: 4.h),
+                              child: Icon(Icons.arrow_forward, color: Color(0xFF1A3A5F), size: 18.sp),
                             ),
                         ],
                       ),
@@ -397,27 +394,27 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(right: 8),
+              padding: EdgeInsets.only(right: 8.w),
               child: ElevatedButton(
                 onPressed: _addNewSlide,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:Color(0xFF476F95),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  backgroundColor: Color(0xFF476F95),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
                 ),
-                child: Text("Add Slide", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                child: Text("Add Slide", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.sp)),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(right: 8),
+              padding: EdgeInsets.only(right: 8.w),
               child: ElevatedButton(
                 onPressed: _saveCurrentSlide,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
                 ),
-                child: Text("Save", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                child: Text("Save", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.sp)),
               ),
             ),
           ],
@@ -426,20 +423,20 @@ class _SetupQuizPageState extends State<SetupQuizPage> {
     );
   }
 
-  /// Submit Quiz
+  /// Submit Quiz Button
   Widget _buildSubmitButton() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: ElevatedButton(
         onPressed: _submitQuiz,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.green,
-          padding: EdgeInsets.symmetric(horizontal: 50, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          padding: EdgeInsets.symmetric(horizontal: 50.w, vertical: 14.h),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
         ),
         child: Text(
           "Submit Quiz",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp),
         ),
       ),
     );

@@ -85,7 +85,7 @@ class _JavaAllLessonsPageState2 extends State<JavaAllLessonsPage2> {
         // Lesson 1 (index 0)
         [
           Text(
-            "Apply Basics of Java Language",
+            "Basics of Java Language",
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,

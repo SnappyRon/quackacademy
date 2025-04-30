@@ -113,7 +113,8 @@ class HomeContent extends StatelessWidget {
             Text(
               "Welcome back,",
               style: TextStyle(
-                fontSize: 18,
+                fontFamily: 'Jaro',
+                fontSize: 30,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -123,7 +124,8 @@ class HomeContent extends StatelessWidget {
                 Text(
                   "Quacker! ",
                   style: TextStyle(
-                    fontSize: 22,
+                    fontFamily: 'Jaro',
+                    fontSize: 25,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),

@@ -26,7 +26,9 @@ class _JoinPageState extends ConsumerState<JoinPage> {
 
     if (code.isEmpty || name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please fill in all fields"), backgroundColor: Colors.red),
+        SnackBar(
+            content: Text("Please fill in all fields"),
+            backgroundColor: Colors.red),
       );
       ref.read(joinSessionLoadingProvider.notifier).state = false;
       return;
@@ -34,11 +36,13 @@ class _JoinPageState extends ConsumerState<JoinPage> {
 
     try {
       // Check if Room Exists.
-      DocumentSnapshot roomSnapshot = await _firestore.collection('rooms').doc(code).get();
+      DocumentSnapshot roomSnapshot =
+          await _firestore.collection('rooms').doc(code).get();
 
       if (!roomSnapshot.exists) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Invalid Game Code"), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text("Invalid Game Code"), backgroundColor: Colors.red),
         );
         return;
       }
@@ -53,20 +57,29 @@ class _JoinPageState extends ConsumerState<JoinPage> {
 
       if (playerSnapshot.exists) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Name already taken! Please choose another."), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text("Name already taken! Please choose another."),
+              backgroundColor: Colors.red),
         );
         return;
       }
 
       // Add Player to Room.
-      await _firestore.collection('rooms').doc(code).collection('players').doc(name).set({
+      await _firestore
+          .collection('rooms')
+          .doc(code)
+          .collection('players')
+          .doc(name)
+          .set({
         'name': name,
         'ready': false, // Default state as not ready.
       });
 
       // Show success message.
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Joined session successfully!"), backgroundColor: Colors.green),
+        SnackBar(
+            content: Text("Joined session successfully!"),
+            backgroundColor: Colors.green),
       );
 
       // Navigate to GameRoomPage with the joined player's name.
@@ -82,7 +95,9 @@ class _JoinPageState extends ConsumerState<JoinPage> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error joining session: $e"), backgroundColor: Colors.red),
+        SnackBar(
+            content: Text("Error joining session: $e"),
+            backgroundColor: Colors.red),
       );
     } finally {
       ref.read(joinSessionLoadingProvider.notifier).state = false;
@@ -103,18 +118,28 @@ class _JoinPageState extends ConsumerState<JoinPage> {
                 child: Column(
                   children: [
                     // Duck Logo.
-                    Image.asset('assets/images/duck_logo.png', height: 100),
-                    SizedBox(height: 20),
+                    Image.asset('assets/images/duck_logo2.png', height: 100),
 
                     // Heading.
                     Text(
-                      "GET READY TO JOIN!\nQUACKACADEMY",
+                      "Ready to Race?",
                       textAlign: TextAlign.center,
                       style: TextStyle(
+                        fontFamily: 'Jaro',
+                        fontSize: 45,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        
+                      ),
+                    ),
+                    Text(
+                      "Enter your code to dive in.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Jaro',
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
-                        letterSpacing: 1.2,
                       ),
                     ),
                     SizedBox(height: 20),
@@ -128,7 +153,7 @@ class _JoinPageState extends ConsumerState<JoinPage> {
                       ),
                       child: Column(
                         children: [
-                          _buildCustomTextField("Enter Code:", _codeController),
+                          _buildCustomTextField("Room Code:", _codeController),
                           SizedBox(height: 10),
                           _buildCustomTextField("Enter Name:", _nameController),
                         ],
@@ -141,7 +166,7 @@ class _JoinPageState extends ConsumerState<JoinPage> {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:  const Color(0xFF476F95),
+                          backgroundColor: const Color(0xFF476F95),
                           padding: EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -153,17 +178,22 @@ class _JoinPageState extends ConsumerState<JoinPage> {
                             ? SizedBox(
                                 height: 20,
                                 width: 20,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2),
                               )
                             : Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
                                     "Join Now",
-                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
                                   ),
                                   SizedBox(width: 5),
-                                  Icon(Icons.arrow_forward, color: Colors.white),
+                                  Icon(Icons.arrow_forward,
+                                      color: Colors.white),
                                 ],
                               ),
                       ),
@@ -188,7 +218,8 @@ class _JoinPageState extends ConsumerState<JoinPage> {
                 ),
                 child: Text(
                   "Back",
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
             ),

@@ -18,6 +18,17 @@ class _PasswordPageState extends ConsumerState<PasswordPage> {
 
   final User? user = FirebaseAuth.instance.currentUser;
 
+  /// Shared custom button style
+  final ButtonStyle customButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: Color(0xFF5C7EA4),
+    foregroundColor: Colors.white,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+    elevation: 0,
+  );
+
   /// Re-authenticate user before changing password.
   Future<bool> _reAuthenticate(String currentPassword) async {
     try {
@@ -75,7 +86,6 @@ class _PasswordPageState extends ConsumerState<PasswordPage> {
       return;
     }
 
-    // Set loading state to true.
     ref.read(passwordLoadingProvider.notifier).state = true;
 
     try {
@@ -85,7 +95,6 @@ class _PasswordPageState extends ConsumerState<PasswordPage> {
         return;
       }
 
-      // (Optional) Verify OTP if integrated with external services.
       if (otpCode.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -97,7 +106,6 @@ class _PasswordPageState extends ConsumerState<PasswordPage> {
         return;
       }
 
-      // Update the password.
       await user!.updatePassword(newPassword);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -107,7 +115,7 @@ class _PasswordPageState extends ConsumerState<PasswordPage> {
         ),
       );
 
-      Navigator.pop(context); // Return to previous screen after success.
+      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -126,44 +134,54 @@ class _PasswordPageState extends ConsumerState<PasswordPage> {
     return Scaffold(
       backgroundColor: Color(0xFF1A3A5F),
       body: SafeArea(
-        child: Column(
-          children: [
-            /// Back Button
-            Align(
-              alignment: Alignment.topLeft,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1A3A5F)),
-                onPressed: () => Navigator.pop(context),
-                child: Text("Back"),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              /// Back Button
+              Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: ElevatedButton(
+                    style: customButtonStyle,
+                    onPressed: () => Navigator.pop(context),
+                    child: Text("Back"),
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            Text(
-              "Password",
-              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            /// Form Fields
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  _buildTextField("Current Password", _currentPasswordController, obscureText: true),
-                  _buildTextField("New Password", _newPasswordController, obscureText: true),
-                  _buildTextField("Confirm Password", _confirmPasswordController, obscureText: true),
-                  _buildTextField("OTP CODE (if required)", _otpController, obscureText: false),
-                  SizedBox(height: 20),
-                  isLoading
-                      ? CircularProgressIndicator(color: Color(0xFF1A3A5F))
-                      : ElevatedButton(
-                          onPressed: _changePassword,
-                          style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1A3A5F)),
-                          child: Text("Confirm"),
-                        ),
-                ],
+              SizedBox(height: 10),
+
+              /// Title
+              Text(
+                "Password",
+                style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
               ),
-            ),
-          ],
+              SizedBox(height: 20),
+
+              /// Form Fields
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    _buildTextField("Current Password", _currentPasswordController, obscureText: true),
+                    _buildTextField("New Password", _newPasswordController, obscureText: true),
+                    _buildTextField("Confirm Password", _confirmPasswordController, obscureText: true),
+                    _buildTextField("OTP CODE (if required)", _otpController),
+
+                    SizedBox(height: 20),
+
+                    isLoading
+                        ? CircularProgressIndicator(color: Color(0xFF5C7EA4))
+                        : ElevatedButton(
+                            onPressed: _changePassword,
+                            style: customButtonStyle,
+                            child: Text("Confirm", style: TextStyle(fontSize: 18)),
+                          ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -176,11 +194,26 @@ class _PasswordPageState extends ConsumerState<PasswordPage> {
       child: TextField(
         controller: controller,
         obscureText: obscureText,
+        style: TextStyle(fontSize: 16, color: Colors.black),
         decoration: InputDecoration(
           labelText: label,
-          fillColor: Colors.white,
+          labelStyle: TextStyle(
+            fontSize: 16,
+            color: Colors.grey[700],
+          ),
+          floatingLabelStyle: TextStyle(
+            color: Colors.white,
+            backgroundColor: Color(0xFF1A3A5F),
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
           filled: true,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          fillColor: Colors.white,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
     );

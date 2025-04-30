@@ -22,7 +22,7 @@ class CurrentQuestWidget extends StatelessWidget {
     if (!isQ1Done) {
       return "Foundations of Java";
     } else if (!isQ2Done) {
-      return "Apply Basics of Java Language";
+      return "Basics of Java Language";
     } else if (!isQ3Done) {
       return "Advanced Java Topics";
     } else {

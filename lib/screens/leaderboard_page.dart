@@ -426,20 +426,22 @@ class LeaderboardPage extends ConsumerWidget {
   Widget _buildLogoSection() {
     return Column(
       children: [
-        Image.asset('assets/images/duck_logo.png', width: 80),
+        Image.asset('assets/images/duck_logo2.png', width: 80),
         const SizedBox(height: 5),
         const Text(
-          "QUACKACADEMY",
+          "Leaderboards",
           style: TextStyle(
-            fontSize: 22, 
+            fontFamily: 'Jaro',
+            fontSize: 45, 
             fontWeight: FontWeight.bold, 
             color: Colors.white,
           ),
         ),
         const Text(
-          "LEADERBOARDS",
+          "See who’s racing ahead in your class!",
           style: TextStyle(
-            fontSize: 18, 
+            fontFamily: 'Jaro',
+            fontSize: 20, 
             fontWeight: FontWeight.bold, 
             color: Colors.white,
           ),
